@@ -15,34 +15,52 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # NOTE: GitHub recently deprecated Node 20 on runners and upgraded to Node 24.
-      # Official actions may still have been authored against Node 20; to avoid
-      # compatibility surprises for the commands run in this job, we explicitly
-      # install a supported Node runtime (Node 18) for the job steps below.
-      - name: Setup Node.js (for job toolchain)
+      - name: Setup Node.js (for npm fallback and tooling)
         uses: actions/setup-node@v4
         with:
           node-version: "18"
 
-      - name: Restore npm cache
+      - name: Cache Bun and npm (separate caches)
         uses: actions/cache@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          path: |
+            ~/.bun
+            ~/.npm
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/bun.lock', '**/package-lock.json', '**/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-npm-
+            ${{ runner.os }}-deps-
 
-      - name: Install dependencies (prefer Bun if bun.lock exists)
+      - name: Install dependencies (prefer Bun if bun.lock exists) and verify
         run: |
-          set -e
+          set -euo pipefail
+
+          # Helper to fallback to npm if bun fails
+          install_with_npm() {
+            echo "Falling back to npm ci"
+            npm ci
+          }
+
           if [ -f bun.lock ]; then
-            echo "bun.lock detected — installing Bun and running bun install"
-            # Install Bun (no-modify-path keeps the runner PATH intact; we add it to PATH explicitly)
+            echo "bun.lock detected — installing Bun"
+            # Install Bun. Installer typically places files in $HOME/.bun
             curl -fsSL https://bun.sh/install | bash -s -- --no-modify-path || true
-            export BUN_INSTALL="$HOME/.bun"
+
+            # Ensure PATH includes Bun bin dir (installer writes to $HOME/.bun)
+            export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
             export PATH="$BUN_INSTALL/bin:$PATH"
-            echo "Bun version: $(bun --version || echo 'bun not found')"
-            bun install
+
+            # Debug info
+            echo "Looking for bun binary with command -v"
+            if command -v bun >/dev/null 2>&1; then
+              echo "bun found at: $(command -v bun)"
+              bun --version || true
+              bun install
+            else
+              echo "bun NOT found after installer. Contents of $BUN_INSTALL:"
+              ls -la "$BUN_INSTALL" || true
+              # fallback to npm to avoid exit 127
+              install_with_npm
+            fi
           else
             echo "No bun.lock — using npm ci"
             npm ci
@@ -50,33 +68,50 @@ jobs:
 
       - name: Type-check (tsc)
         run: |
-          set -e
-          if [ -f bun.lock ]; then
-            export BUN_INSTALL="$HOME/.bun"
+          set -euo pipefail
+          if command -v bun >/dev/null 2>&1; then
+            export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
             export PATH="$BUN_INSTALL/bin:$PATH"
-            bunx tsc --noEmit
+            echo "Using bunx tsc"
+            # bunx may not exist in older bun versions; guard and fallback
+            if command -v bunx >/dev/null 2>&1; then
+              bunx tsc --noEmit
+            else
+              # try bun tsc wrapper or fall back to npx
+              if bun --version >/dev/null 2>&1; then
+                bun run tsc --noEmit || npx tsc --noEmit
+              else
+                npx tsc --noEmit
+              fi
+            fi
           else
+            echo "bun not available — using npx tsc"
             npx tsc --noEmit
           fi
 
       - name: Lint
         run: |
-          set -e
-          if [ -f bun.lock ]; then
-            export BUN_INSTALL="$HOME/.bun"
+          set -euo pipefail
+          if command -v bun >/dev/null 2>&1; then
+            export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
             export PATH="$BUN_INSTALL/bin:$PATH"
-            bun run lint
+            if command -v bun >/dev/null 2>&1 && npm run lint >/dev/null 2>&1; then
+              # Prefer bun run if it works
+              bun run lint || npm run lint
+            else
+              npm run lint
+            fi
           else
             npm run lint
           fi
 
       - name: Build
         run: |
-          set -e
-          if [ -f bun.lock ]; then
-            export BUN_INSTALL="$HOME/.bun"
+          set -euo pipefail
+          if command -v bun >/dev/null 2>&1; then
+            export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
             export PATH="$BUN_INSTALL/bin:$PATH"
-            bun run build
+            bun run build || npm run build
           else
             npm run build
           fi
