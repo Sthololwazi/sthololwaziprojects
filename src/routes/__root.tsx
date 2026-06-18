@@ -83,6 +83,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Sthololwazi Projects" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Sthololwazi Projects — Civil & Building Construction" },
+      { name: "twitter:title", content: "Sthololwazi Projects — Civil & Building Construction" },
+      { property: "og:description", content: "100% black-owned, B-BBEE Level 1 civil and building contractor based in Mbombela, Mpumalanga. Building infrastructure. Empowering communities." },
+      { name: "twitter:description", content: "100% black-owned, B-BBEE Level 1 civil and building contractor based in Mbombela, Mpumalanga. Building infrastructure. Empowering communities." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/aPjJ3FQth5OWxFvYLVct2x9189R2/social-images/social-1781777585943-logo.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/aPjJ3FQth5OWxFvYLVct2x9189R2/social-images/social-1781777585943-logo.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -104,7 +110,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           description: "100% black-owned, B-BBEE Level 1 civil and building construction company in Mbombela, Mpumalanga.",
           foundingDate: "2017",
           taxID: "9071664248",
-          email: "projectssthololwazi@gmail.com",
+          email: "projectsithololwazi@gmail.com",
           telephone: "+27-64-620-4247",
           address: {
             "@type": "PostalAddress",
