@@ -123,6 +123,13 @@ function Services() {
                     </li>
                   ))}
                 </ul>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link to="/services/$slug" params={{ slug: d.slug }} className="btn-primary">
+                    Explore {d.title} →
+                  </Link>
+                  <Link to="/contact" className="btn-ghost">Request a quote</Link>
+                </div>
+
               </div>
             </div>
           </div>
