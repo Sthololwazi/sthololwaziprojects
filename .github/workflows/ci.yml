@@ -15,12 +15,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js (for npm fallback and tooling)
+      # NOTE: GitHub recently deprecated Node 20 on runners and upgraded to Node 24.
+      # Official actions may still have been authored against Node 20; to avoid
+      # compatibility surprises for the commands run in this job, we explicitly
+      # install a supported Node runtime (Node 18) for the job steps below.
+      - name: Setup Node.js (for job toolchain)
         uses: actions/setup-node@v4
         with:
           node-version: "18"
 
-      - name: Restore cache for node_modules (npm)
+      - name: Restore npm cache
         uses: actions/cache@v4
         with:
           path: ~/.npm
@@ -33,10 +37,11 @@ jobs:
           set -e
           if [ -f bun.lock ]; then
             echo "bun.lock detected — installing Bun and running bun install"
+            # Install Bun (no-modify-path keeps the runner PATH intact; we add it to PATH explicitly)
             curl -fsSL https://bun.sh/install | bash -s -- --no-modify-path || true
             export BUN_INSTALL="$HOME/.bun"
             export PATH="$BUN_INSTALL/bin:$PATH"
-            echo "Bun version: $(bun --version)"
+            echo "Bun version: $(bun --version || echo 'bun not found')"
             bun install
           else
             echo "No bun.lock — using npm ci"
