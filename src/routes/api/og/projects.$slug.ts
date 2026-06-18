@@ -6,8 +6,12 @@ export const Route = createFileRoute("/api/og/projects/$slug")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const p = getProject(params.slug);
-        if (!p) return new Response("Not found", { status: 404 });
+        const p = getProject(params.slug) ?? {
+          name: "Sthololwazi Projects",
+          category: "Construction",
+          year: "Mpumalanga",
+          location: "Building infrastructure. Empowering communities.",
+        };
 
         const esc = (s: string) =>
           s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
