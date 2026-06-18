@@ -42,7 +42,7 @@ export function Footer() {
                 Mbombela 1215, Mpumalanga, South Africa
               </li>
               <li><a href="tel:+27646204247" className="hover:text-gold">064 620 4247</a></li>
-              <li><a href="mailto:projectsithololwazi@gmail.com" className="hover:text-gold break-all">projectsithololwazi@gmail.com</a></li>
+              <li><a href="mailto:projectssthololwazi@gmail.com" className="hover:text-gold break-all">projectssthololwazi@gmail.com</a></li>
             </ul>
           </div>
         </div>

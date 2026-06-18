@@ -8,7 +8,7 @@ export const Route = createFileRoute("/contact")({
       { title: "Contact — Sthololwazi Projects · Mbombela, Mpumalanga" },
       { name: "description", content: "Get in touch with Sthololwazi Projects in Mbombela, Mpumalanga. Request a quote, submit a tender enquiry, or schedule a site visit." },
       { property: "og:title", content: "Contact — Sthololwazi Projects" },
-      { property: "og:description", content: "Mbombela, Mpumalanga · 064 620 4247 · projectsithololwazi@gmail.com" },
+      { property: "og:description", content: "Mbombela, Mpumalanga · 064 620 4247 · projectssthololwazi@gmail.com" },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/contact" },
       { name: "twitter:card", content: "summary" },
@@ -42,7 +42,7 @@ function Contact() {
     const body = encodeURIComponent(
       `Name: ${fd.get("name")}\nCompany: ${fd.get("company")}\nPhone: ${fd.get("phone")}\nEmail: ${fd.get("email")}\nProject type: ${fd.get("type")}\n\n${fd.get("message")}`,
     );
-    window.location.href = `mailto:projectsithololwazi@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:projectssthololwazi@gmail.com?subject=${subject}&body=${body}`;
     setSent(true);
   };
 
@@ -76,8 +76,8 @@ function Contact() {
             </div>
             <div>
               <div className="eyebrow">Email</div>
-              <a href="mailto:projectsithololwazi@gmail.com" className="block font-display text-2xl mt-4 break-all hover:text-forest transition-colors">
-                projectsithololwazi@gmail.com
+              <a href="mailto:projectssthololwazi@gmail.com" className="block font-display text-2xl mt-4 break-all hover:text-forest transition-colors">
+                projectssthololwazi@gmail.com
               </a>
             </div>
             <div className="rounded-2xl bg-limestone p-6">
