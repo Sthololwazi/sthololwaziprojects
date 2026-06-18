@@ -17,6 +17,7 @@ import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as ApiOgProjectsSlugRouteImport } from './routes/api/og/projects.$slug'
 
@@ -60,6 +61,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesSlugRoute = ServicesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ServicesRoute,
+} as any)
 const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -76,11 +82,12 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRouteWithChildren
-  '/services': typeof ServicesRoute
+  '/services': typeof ServicesRouteWithChildren
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-projects.xml': typeof SitemapProjectsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/api/og/projects/$slug': typeof ApiOgProjectsSlugRoute
 }
 export interface FileRoutesByTo {
@@ -88,11 +95,12 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRouteWithChildren
-  '/services': typeof ServicesRoute
+  '/services': typeof ServicesRouteWithChildren
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-projects.xml': typeof SitemapProjectsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/api/og/projects/$slug': typeof ApiOgProjectsSlugRoute
 }
 export interface FileRoutesById {
@@ -101,11 +109,12 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRouteWithChildren
-  '/services': typeof ServicesRoute
+  '/services': typeof ServicesRouteWithChildren
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-projects.xml': typeof SitemapProjectsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/api/og/projects/$slug': typeof ApiOgProjectsSlugRoute
 }
 export interface FileRouteTypes {
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/sitemap-projects.xml'
     | '/sitemap.xml'
     | '/projects/$slug'
+    | '/services/$slug'
     | '/api/og/projects/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/sitemap-projects.xml'
     | '/sitemap.xml'
     | '/projects/$slug'
+    | '/services/$slug'
     | '/api/og/projects/$slug'
   id:
     | '__root__'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/sitemap-projects.xml'
     | '/sitemap.xml'
     | '/projects/$slug'
+    | '/services/$slug'
     | '/api/og/projects/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -152,7 +164,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
-  ServicesRoute: typeof ServicesRoute
+  ServicesRoute: typeof ServicesRouteWithChildren
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapProjectsDotxmlRoute: typeof SitemapProjectsDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/$slug': {
+      id: '/services/$slug'
+      path: '/$slug'
+      fullPath: '/services/$slug'
+      preLoaderRoute: typeof ServicesSlugRouteImport
+      parentRoute: typeof ServicesRoute
+    }
     '/projects/$slug': {
       id: '/projects/$slug'
       path: '/$slug'
@@ -246,12 +265,24 @@ const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
   ProjectsRouteChildren,
 )
 
+interface ServicesRouteChildren {
+  ServicesSlugRoute: typeof ServicesSlugRoute
+}
+
+const ServicesRouteChildren: ServicesRouteChildren = {
+  ServicesSlugRoute: ServicesSlugRoute,
+}
+
+const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
+  ServicesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
-  ServicesRoute: ServicesRoute,
+  ServicesRoute: ServicesRouteWithChildren,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapProjectsDotxmlRoute: SitemapProjectsDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
