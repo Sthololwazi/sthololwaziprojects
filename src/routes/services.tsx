@@ -7,11 +7,31 @@ import craft from "@/assets/craft-bricks.jpg";
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "Services — Sthololwazi Projects" },
+      { title: "Services — Civil, Building & Material Supply · Sthololwazi Projects" },
       { name: "description", content: "Civil construction, building construction and material supply — three integrated divisions delivered to SANS standards across Mpumalanga." },
       { property: "og:title", content: "Services — Civil, Building & Material Supply" },
       { property: "og:description", content: "Three integrated divisions, one accountable partner." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/services" },
       { property: "og:image", content: civil },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Services — Sthololwazi Projects" },
+      { name: "twitter:description", content: "Civil, building and material supply across Mpumalanga." },
+      { name: "twitter:image", content: civil },
+    ],
+    links: [{ rel: "canonical", href: "/services" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          serviceType: "Civil & Building Construction",
+          provider: { "@type": "Organization", name: "Sthololwazi Projects (Pty) Ltd" },
+          areaServed: { "@type": "AdministrativeArea", name: "Mpumalanga, South Africa" },
+          url: "/services",
+        }),
+      },
     ],
   }),
   component: Services,
