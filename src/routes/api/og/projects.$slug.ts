@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { getProject } from "@/data/projects";
 
-export const Route = createFileRoute("/api/og/projects/$slug.svg")({
+export const Route = createFileRoute("/api/og/projects/$slug")({
   server: {
     handlers: {
       GET: async ({ params }) => {
