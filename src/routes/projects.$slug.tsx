@@ -2,17 +2,26 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { LogoWatermark } from "@/components/site/LogoWatermark";
 import { getProject, projects, type Project } from "@/data/projects";
+import { getRequestOrigin } from "@/lib/origin.functions";
 
 export const Route = createFileRoute("/projects/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     const project = getProject(params.slug);
     if (!project) throw notFound();
-    return project;
+    let origin = "";
+    try {
+      origin = await getRequestOrigin();
+    } catch {
+      origin = "";
+    }
+    return { project, origin };
   },
   head: ({ params, loaderData }) => {
-    const p = loaderData;
+    const p = loaderData?.project;
+    const origin = loaderData?.origin ?? "";
     const title = p ? `${p.name} — Sthololwazi Projects` : "Project — Sthololwazi Projects";
     const desc = p?.summary ?? "Project case study by Sthololwazi Projects.";
+    const ogImage = `${origin}/api/og/projects/${params.slug}`;
     return {
       meta: [
         { title },
@@ -20,12 +29,15 @@ export const Route = createFileRoute("/projects/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
-        { property: "og:url", content: `/projects/${params.slug}` },
-        ...(p ? [{ property: "og:image", content: p.image }] : []),
+        { property: "og:url", content: `${origin}/projects/${params.slug}` },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:type", content: "image/svg+xml" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
-        ...(p ? [{ name: "twitter:image", content: p.image }] : []),
+        { name: "twitter:image", content: ogImage },
       ],
       links: [{ rel: "canonical", href: `/projects/${params.slug}` }],
       scripts: p
@@ -38,7 +50,7 @@ export const Route = createFileRoute("/projects/$slug")({
                 name: p.name,
                 description: p.summary,
                 dateCreated: p.year,
-                image: p.image,
+                image: ogImage,
                 locationCreated: { "@type": "Place", name: p.location },
                 creator: { "@type": "Organization", name: "Sthololwazi Projects (Pty) Ltd" },
                 url: `/projects/${params.slug}`,
@@ -48,6 +60,7 @@ export const Route = createFileRoute("/projects/$slug")({
         : [],
     };
   },
+
   notFoundComponent: () => (
     <SiteLayout>
       <div className="container-page py-40 text-center">
