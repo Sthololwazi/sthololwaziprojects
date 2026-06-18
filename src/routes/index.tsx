@@ -126,44 +126,104 @@ function Home() {
         </div>
       </section>
 
-      {/* SERVICES OVERVIEW */}
-      <section className="bg-limestone py-28 md:py-36">
-        <div className="container-page">
-          <div className="flex items-end justify-between gap-8 flex-wrap mb-16">
-            <div>
-              <div className="eyebrow">What we do</div>
-              <h2 className="display-lg mt-5 max-w-xl">Three integrated divisions, one accountable partner.</h2>
+      {/* SERVICES — HEADLINE SECTION */}
+      <section id="services" className="relative bg-onyx text-white py-28 md:py-40 overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, #C99A3B 0 1px, transparent 1px 22px)",
+          }}
+        />
+        <div className="container-page relative">
+          <div className="grid gap-12 md:grid-cols-12 items-end mb-20">
+            <div className="md:col-span-8">
+              <div className="text-[11px] uppercase tracking-[0.22em] text-gold font-semibold flex items-center gap-3">
+                <span className="rule-gold" /> What we do best
+              </div>
+              <h2 className="display-xl mt-6 text-white">
+                Services <span className="italic-accent">engineered</span> for impact.
+              </h2>
+              <p className="mt-8 text-white/70 text-lg max-w-2xl leading-relaxed">
+                Three integrated divisions delivering technical excellence and measurable
+                empowerment on every project — from bulk earthworks to handover.
+              </p>
             </div>
-            <Link to="/services" className="btn-ghost">All services →</Link>
+            <div className="md:col-span-4 md:text-right">
+              <Link to="/services" className="btn-gold">Explore all services →</Link>
+            </div>
           </div>
 
-          <div className="grid gap-px bg-border md:grid-cols-3 rounded-2xl overflow-hidden">
+          <div className="grid gap-px bg-white/10 md:grid-cols-3 rounded-2xl overflow-hidden">
             {[
               {
                 n: "01",
                 t: "Civil Construction",
-                d: "Roads, stormwater, water reticulation, sewer & sanitation, and bulk earthworks — to SANS standards.",
+                d: "Roads, stormwater, water reticulation, sewer & sanitation, and bulk earthworks — to SANS 1200 standards.",
+                items: ["Roads & asphalt", "Water reticulation", "Bulk earthworks", "Stormwater"],
+                href: "/services" as const,
               },
               {
                 n: "02",
                 t: "Building Construction",
-                d: "RDP & social housing, commercial structures, renovations, ceilings, plumbing, carpentry, welding.",
+                d: "RDP & social housing, commercial structures, renovations, ceilings, plumbing, carpentry and welding.",
+                items: ["RDP housing", "Commercial builds", "Renovations", "Plumbing & tiling"],
+                href: "/services" as const,
               },
               {
                 n: "03",
                 t: "Material Supply",
-                d: "In-house supply division delivering bricks, cement, aggregates and steel direct to site.",
+                d: "In-house supply division delivering bricks, cement, aggregates and steel direct to site at scale.",
+                items: ["Bricks & cement", "Aggregates", "Steel & rebar", "Site consumables"],
+                href: "/services" as const,
               },
             ].map((s) => (
-              <div key={s.n} className="bg-background p-10 md:p-12 hover:bg-forest-light transition-colors group">
-                <div className="font-mono text-xs text-gold">{s.n}</div>
-                <h3 className="display-md mt-6 group-hover:text-forest transition-colors">{s.t}</h3>
-                <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{s.d}</p>
+              <div
+                key={s.n}
+                className="bg-onyx p-10 md:p-12 group hover:bg-forest transition-colors duration-500 flex flex-col"
+              >
+                <div className="flex items-baseline justify-between">
+                  <div className="font-mono text-xs text-gold tracking-widest">{s.n} · DIVISION</div>
+                  <div className="font-display text-5xl font-light text-white/15 group-hover:text-gold/40 transition-colors">{s.n}</div>
+                </div>
+                <h3 className="font-display text-3xl mt-6 text-white">{s.t}</h3>
+                <p className="mt-4 text-sm leading-relaxed text-white/65">{s.d}</p>
+                <ul className="mt-6 space-y-2 text-sm text-white/80">
+                  {s.items.map((it) => (
+                    <li key={it} className="flex items-center gap-2">
+                      <span className="h-1 w-3 bg-gold" />
+                      <span>{it}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to={s.href}
+                  className="mt-auto pt-8 inline-flex items-center gap-2 text-sm font-medium text-gold hover:text-white transition-colors"
+                >
+                  Learn more <span aria-hidden>→</span>
+                </Link>
               </div>
             ))}
           </div>
+
+          {/* Inline CTA strip under services */}
+          <div className="mt-14 rounded-2xl border border-white/15 bg-white/[0.03] backdrop-blur-sm p-6 md:p-8 flex flex-wrap items-center justify-between gap-6">
+            <div>
+              <div className="font-display text-2xl md:text-3xl text-white">Need a quote on a specific scope?</div>
+              <div className="text-sm text-white/60 mt-2">Tender response · Private development · Material supply · 48-hour reply.</div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/contact" className="btn-gold">Request a quote</Link>
+              <a
+                href="tel:+27646204247"
+                className="btn-ghost text-white border-white/30 hover:!text-white hover:!border-white hover:bg-white/10"
+              >
+                Call 064 620 4247
+              </a>
+            </div>
+          </div>
         </div>
       </section>
+
 
       {/* IMAGE + COMMITMENT */}
       <section className="container-page py-28 md:py-40">
