@@ -10,16 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapProjectsDotxmlRouteImport } from './routes/sitemap-projects[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as ApiOgProjectsSlugRouteImport } from './routes/api/og/projects.$slug'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapProjectsDotxmlRoute = SitemapProjectsDotxmlRouteImport.update({
+  id: '/sitemap-projects.xml',
+  path: '/sitemap-projects.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -52,6 +65,11 @@ const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ProjectsRoute,
 } as any)
+const ApiOgProjectsSlugRoute = ApiOgProjectsSlugRouteImport.update({
+  id: '/api/og/projects/$slug',
+  path: '/api/og/projects/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,8 +77,11 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/services': typeof ServicesRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-projects.xml': typeof SitemapProjectsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/api/og/projects/$slug': typeof ApiOgProjectsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,8 +89,11 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/services': typeof ServicesRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-projects.xml': typeof SitemapProjectsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/api/og/projects/$slug': typeof ApiOgProjectsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,8 +102,11 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/services': typeof ServicesRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-projects.xml': typeof SitemapProjectsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/api/og/projects/$slug': typeof ApiOgProjectsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,8 +116,11 @@ export interface FileRouteTypes {
     | '/contact'
     | '/projects'
     | '/services'
+    | '/sitemap-pages.xml'
+    | '/sitemap-projects.xml'
     | '/sitemap.xml'
     | '/projects/$slug'
+    | '/api/og/projects/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -98,8 +128,11 @@ export interface FileRouteTypes {
     | '/contact'
     | '/projects'
     | '/services'
+    | '/sitemap-pages.xml'
+    | '/sitemap-projects.xml'
     | '/sitemap.xml'
     | '/projects/$slug'
+    | '/api/og/projects/$slug'
   id:
     | '__root__'
     | '/'
@@ -107,8 +140,11 @@ export interface FileRouteTypes {
     | '/contact'
     | '/projects'
     | '/services'
+    | '/sitemap-pages.xml'
+    | '/sitemap-projects.xml'
     | '/sitemap.xml'
     | '/projects/$slug'
+    | '/api/og/projects/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,7 +153,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
   ServicesRoute: typeof ServicesRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapProjectsDotxmlRoute: typeof SitemapProjectsDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiOgProjectsSlugRoute: typeof ApiOgProjectsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -127,6 +166,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-projects.xml': {
+      id: '/sitemap-projects.xml'
+      path: '/sitemap-projects.xml'
+      fullPath: '/sitemap-projects.xml'
+      preLoaderRoute: typeof SitemapProjectsDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -171,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsSlugRouteImport
       parentRoute: typeof ProjectsRoute
     }
+    '/api/og/projects/$slug': {
+      id: '/api/og/projects/$slug'
+      path: '/api/og/projects/$slug'
+      fullPath: '/api/og/projects/$slug'
+      preLoaderRoute: typeof ApiOgProjectsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -192,7 +252,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
   ServicesRoute: ServicesRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapProjectsDotxmlRoute: SitemapProjectsDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiOgProjectsSlugRoute: ApiOgProjectsSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
