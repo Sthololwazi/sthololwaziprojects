@@ -1,3 +1,15 @@
 User-agent: *
 Allow: /
+
+# Don't index API endpoints, OG image generators, or sitemap files themselves
+Disallow: /api/
+Disallow: /lovable/
+Disallow: /*.xml$
+
+# Allow Googlebot-Image to index OG previews
+User-agent: Googlebot-Image
+Allow: /api/og/
+
 Sitemap: /sitemap.xml
+Sitemap: /sitemap-pages.xml
+Sitemap: /sitemap-projects.xml

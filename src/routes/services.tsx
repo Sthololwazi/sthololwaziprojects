@@ -39,6 +39,7 @@ export const Route = createFileRoute("/services")({
 
 const divisions = [
   {
+    slug: "civil-construction",
     img: civil,
     n: "01",
     title: "Civil Construction",
@@ -51,6 +52,7 @@ const divisions = [
     ],
   },
   {
+    slug: "building-construction",
     img: craft,
     n: "02",
     title: "Building Construction",
@@ -65,6 +67,7 @@ const divisions = [
     ],
   },
   {
+    slug: "material-supply",
     img: supply,
     n: "03",
     title: "Material Supply Division",
@@ -76,7 +79,8 @@ const divisions = [
       ["Site consumables", "PPE, formwork, fasteners and finishing materials."],
     ],
   },
-];
+] as const;
+
 
 const valueAdds = [
   ["Dual-sector advantage", "Construction expertise plus integrated material supply — bulk savings, one accountable party from procurement to handover."],
@@ -119,6 +123,13 @@ function Services() {
                     </li>
                   ))}
                 </ul>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link to="/services/$slug" params={{ slug: d.slug }} className="btn-primary">
+                    Explore {d.title} →
+                  </Link>
+                  <Link to="/contact" className="btn-ghost">Request a quote</Link>
+                </div>
+
               </div>
             </div>
           </div>

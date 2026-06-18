@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { services } from "@/data/services";
 
 interface Entry {
   path: string;
@@ -16,6 +17,11 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
           { path: "/", priority: "1.0", changefreq: "weekly" },
           { path: "/about", priority: "0.8", changefreq: "monthly" },
           { path: "/services", priority: "0.9", changefreq: "monthly" },
+          ...services.map((s) => ({
+            path: `/services/${s.slug}`,
+            priority: "0.8",
+            changefreq: "monthly" as const,
+          })),
           { path: "/projects", priority: "0.9", changefreq: "monthly" },
           { path: "/contact", priority: "0.7", changefreq: "yearly" },
         ];

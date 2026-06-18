@@ -104,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           description: "100% black-owned, B-BBEE Level 1 civil and building construction company in Mbombela, Mpumalanga.",
           foundingDate: "2017",
           taxID: "9071664248",
-          email: "projectsithololwazi@gmail.com",
+          email: "projectssthololwazi@gmail.com",
           telephone: "+27-64-620-4247",
           address: {
             "@type": "PostalAddress",
