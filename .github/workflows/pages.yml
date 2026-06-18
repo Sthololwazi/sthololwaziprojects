@@ -1,4 +1,4 @@
-name: Build and Publish Pages
+name: Build and Publish Pages (with debug)
 
 on:
   push:
@@ -17,8 +17,13 @@ concurrency:
 
 jobs:
   build-and-publish:
-    name: Install → Typecheck → Lint → Build → Publish
+    name: Install → Typecheck → Lint → Build → Publish (debug)
     runs-on: ubuntu-latest
+
+    # Suppress Node deprecation warnings in the job's Node processes.
+    # NOTE: this hides deprecation warnings; keep an eye on action updates instead of relying on this long-term.
+    env:
+      NODE_OPTIONS: --no-deprecation
 
     steps:
       - name: Checkout
@@ -27,7 +32,7 @@ jobs:
       - name: Setup Node (job toolchain)
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
 
       - name: Cache Bun and npm
         uses: actions/cache@v4
@@ -51,6 +56,7 @@ jobs:
           if [ -f bun.lock ]; then
             echo "bun.lock detected — attempting to install Bun"
             curl -fsSL https://bun.sh/install | bash -s -- --no-modify-path || true
+
             export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
             export PATH="$BUN_INSTALL/bin:$PATH"
 
@@ -111,7 +117,7 @@ jobs:
           echo "Repository root contents:"
           ls -la
           echo ""
-          echo "Checking common build directories:"
+          echo "Checking common build directories (dist, .output/public, .output):"
           for d in dist .output/public .output; do
             if [ -d "$d" ]; then
               echo "Contents of $d:"
@@ -122,7 +128,7 @@ jobs:
             fi
           done
           echo ""
-          echo "Look for index.html"
+          echo "Look for index.html in candidates:"
           find dist -maxdepth 2 -type f -name index.html -print || true
           find .output/public -maxdepth 2 -type f -name index.html -print || true
 
@@ -131,7 +137,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # prefer dist (Vite SPA), then .output/public (Nitro static), then .output
           if [ -f dist/index.html ]; then
             echo "path=dist" >> "$GITHUB_OUTPUT"
             echo "Found dist/index.html"
@@ -146,6 +151,22 @@ jobs:
             exit 1
           fi
 
+      - name: Debug: list deploy dir and show index.html before upload
+        run: |
+          set -euo pipefail
+          DEPLOY_DIR="${{ steps.set-deploy-path.outputs.path }}"
+          echo "Selected deploy dir: $DEPLOY_DIR"
+          echo "Listing files (top 500 lines):"
+          ls -la "$DEPLOY_DIR" | sed -n '1,500p' || true
+          echo ""
+          if [ -f "$DEPLOY_DIR/index.html" ]; then
+            echo "index.html FOUND at $DEPLOY_DIR/index.html — showing first 200 lines:"
+            head -n 200 "$DEPLOY_DIR/index.html" || true
+          else
+            echo "index.html NOT FOUND in $DEPLOY_DIR" >&2
+            exit 1
+          fi
+
       - name: Configure GitHub Pages
         uses: actions/config-pages@v3
 
@@ -155,4 +176,8 @@ jobs:
           path: ${{ steps.set-deploy-path.outputs.path }}
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
+        # use v5 of the deploy action (keeps parity with recent runner logs)
+        uses: actions/deploy-pages@v5
+        env:
+          # inherit job-level NODE_OPTIONS (set at job env) — can be overridden here if desired
+          NODE_OPTIONS: ${{ env.NODE_OPTIONS }}
