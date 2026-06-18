@@ -51,7 +51,6 @@ jobs:
           if [ -f bun.lock ]; then
             echo "bun.lock detected — attempting to install Bun"
             curl -fsSL https://bun.sh/install | bash -s -- --no-modify-path || true
-
             export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
             export PATH="$BUN_INSTALL/bin:$PATH"
 
@@ -78,12 +77,7 @@ jobs:
             if command -v bunx >/dev/null 2>&1; then
               bunx tsc --noEmit
             else
-              # try bun run tsc if bunx not present, else fall back to npx
-              if command -v bun >/dev/null 2>&1; then
-                bun run tsc --noEmit || npx tsc --noEmit
-              else
-                npx tsc --noEmit
-              fi
+              bun run tsc --noEmit || npx tsc --noEmit
             fi
           else
             npx tsc --noEmit
@@ -92,7 +86,6 @@ jobs:
       - name: Lint
         run: |
           set -euo pipefail
-          # prefer bun run lint if bun available, else npm run lint
           if command -v bun >/dev/null 2>&1; then
             export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
             export PATH="$BUN_INSTALL/bin:$PATH"
@@ -112,26 +105,48 @@ jobs:
             npm run build
           fi
 
-      - name: Determine pages deploy path
+      - name: Show repo root and build artifacts for debugging
+        run: |
+          set -euo pipefail
+          echo "Repository root contents:"
+          ls -la
+          echo ""
+          echo "Checking common build directories:"
+          for d in dist .output/public .output; do
+            if [ -d "$d" ]; then
+              echo "Contents of $d:"
+              ls -la "$d" | sed -n '1,200p'
+              echo ""
+            else
+              echo "$d does not exist"
+            fi
+          done
+          echo ""
+          echo "Look for index.html"
+          find dist -maxdepth 2 -type f -name index.html -print || true
+          find .output/public -maxdepth 2 -type f -name index.html -print || true
+
+      - name: Determine deploy directory containing index.html
         id: set-deploy-path
         run: |
           set -euo pipefail
-          # Candidate build outputs used by this repo
-          if [ -d dist ]; then
+
+          # prefer dist (Vite SPA), then .output/public (Nitro static), then .output
+          if [ -f dist/index.html ]; then
             echo "path=dist" >> "$GITHUB_OUTPUT"
-            echo "Found deploy path: dist"
-          elif [ -d .output/public ]; then
+            echo "Found dist/index.html"
+          elif [ -f .output/public/index.html ]; then
             echo "path=.output/public" >> "$GITHUB_OUTPUT"
-            echo "Found deploy path: .output/public"
-          elif [ -d .output ]; then
+            echo "Found .output/public/index.html"
+          elif [ -f .output/index.html ]; then
             echo "path=.output" >> "$GITHUB_OUTPUT"
-            echo "Found deploy path: .output"
+            echo "Found .output/index.html"
           else
-            echo "No recognized build output found (dist or .output/public or .output). Build steps may have failed." >&2
+            echo "ERROR: no index.html found in dist or .output/public or .output. Pages requires an index.html at the site root. See build logs above." >&2
             exit 1
           fi
 
-      - name: Configure GitHub Pages (required)
+      - name: Configure GitHub Pages
         uses: actions/config-pages@v3
 
       - name: Upload Pages artifact
