@@ -5,10 +5,27 @@ import { SiteLayout } from "@/components/site/Layout";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Sthololwazi Projects" },
+      { title: "Contact — Sthololwazi Projects · Mbombela, Mpumalanga" },
       { name: "description", content: "Get in touch with Sthololwazi Projects in Mbombela, Mpumalanga. Request a quote, submit a tender enquiry, or schedule a site visit." },
       { property: "og:title", content: "Contact — Sthololwazi Projects" },
       { property: "og:description", content: "Mbombela, Mpumalanga · 064 620 4247 · projectsithololwazi@gmail.com" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/contact" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Contact — Sthololwazi Projects" },
+      { name: "twitter:description", content: "Mbombela, Mpumalanga · 064 620 4247" },
+    ],
+    links: [{ rel: "canonical", href: "/contact" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          name: "Contact Sthololwazi Projects",
+          url: "/contact",
+        }),
+      },
     ],
   }),
   component: Contact,
