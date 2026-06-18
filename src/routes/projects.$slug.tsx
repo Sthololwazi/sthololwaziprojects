@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { LogoWatermark } from "@/components/site/LogoWatermark";
-import { getProject, projects } from "@/data/projects";
+import { getProject, projects, type Project } from "@/data/projects";
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: ({ params }) => {
@@ -62,7 +62,7 @@ export const Route = createFileRoute("/projects/$slug")({
 });
 
 function ProjectDetail() {
-  const p = Route.useLoaderData();
+  const p = Route.useLoaderData() as Project;
   const related = projects.filter((x) => x.slug !== p.slug).slice(0, 3);
 
   return (
