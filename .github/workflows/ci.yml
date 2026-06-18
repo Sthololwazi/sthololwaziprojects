@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    name: Install / Typecheck / Lint / Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (for npm fallback and tooling)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Restore cache for node_modules (npm)
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install dependencies (prefer Bun if bun.lock exists)
+        run: |
+          set -e
+          if [ -f bun.lock ]; then
+            echo "bun.lock detected — installing Bun and running bun install"
+            curl -fsSL https://bun.sh/install | bash -s -- --no-modify-path || true
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+            echo "Bun version: $(bun --version)"
+            bun install
+          else
+            echo "No bun.lock — using npm ci"
+            npm ci
+          fi
+
+      - name: Type-check (tsc)
+        run: |
+          set -e
+          if [ -f bun.lock ]; then
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+            bunx tsc --noEmit
+          else
+            npx tsc --noEmit
+          fi
+
+      - name: Lint
+        run: |
+          set -e
+          if [ -f bun.lock ]; then
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+            bun run lint
+          else
+            npm run lint
+          fi
+
+      - name: Build
+        run: |
+          set -e
+          if [ -f bun.lock ]; then
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+            bun run build
+          else
+            npm run build
+          fi
+
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            dist
+            .output
