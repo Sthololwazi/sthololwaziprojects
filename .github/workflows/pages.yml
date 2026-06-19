@@ -1,0 +1,207 @@
+name: Build and Publish Pages (auto static fallback)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-publish:
+    name: Install → Typecheck → Lint → Build → Publish (with static fallbacks)
+    runs-on: ubuntu-latest
+    env:
+      # Suppress noisy deprecation warnings in action/node processes if you chose that.
+      NODE_OPTIONS: --no-deprecation
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node (job toolchain)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Cache Bun and npm
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            ~/.npm
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/bun.lock', '**/package-lock.json', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
+      - name: Install dependencies (prefer Bun, fallback to npm) and verify
+        run: |
+          set -euo pipefail
+          install_with_npm() {
+            echo "Falling back to npm ci"
+            npm ci
+          }
+
+          if [ -f bun.lock ]; then
+            echo "bun.lock detected — attempting to install Bun"
+            curl -fsSL https://bun.sh/install | bash -s -- --no-modify-path || true
+            export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+
+            if command -v bun >/dev/null 2>&1; then
+              echo "bun found at: $(command -v bun)"
+              bun --version || true
+              bun install
+            else
+              echo "bun NOT found after installer. Listing $BUN_INSTALL:"
+              ls -la "$BUN_INSTALL" || true
+              install_with_npm
+            fi
+          else
+            echo "No bun.lock — using npm ci"
+            npm ci
+          fi
+
+      - name: Typecheck (tsc)
+        run: |
+          set -euo pipefail
+          if command -v bun >/dev/null 2>&1; then
+            export PATH="${BUN_INSTALL:-$HOME/.bun}/bin:$PATH"
+            if command -v bunx >/dev/null 2>&1; then
+              bunx tsc --noEmit
+            else
+              bun run tsc --noEmit || npx tsc --noEmit
+            fi
+          else
+            npx tsc --noEmit
+          fi
+
+      - name: Lint
+        run: |
+          set -euo pipefail
+          if command -v bun >/dev/null 2>&1; then
+            export PATH="${BUN_INSTALL:-$HOME/.bun}/bin:$PATH"
+            bun run lint || npm run lint
+          else
+            npm run lint
+          fi
+
+      - name: Build (primary) and collect logs
+        id: build_primary
+        run: |
+          set -euo pipefail
+          mkdir -p ci-logs
+          BUILD_EXIT=0
+
+          echo "Running primary build (package.json: build)"
+          if command -v bun >/dev/null 2>&1; then
+            export PATH="${BUN_INSTALL:-$HOME/.bun}/bin:$PATH"
+            bun run build > ci-logs/build-primary.log 2>&1 || BUILD_EXIT=$?
+          else
+            npm run build > ci-logs/build-primary.log 2>&1 || BUILD_EXIT=$?
+          fi
+
+          echo "BUILD_EXIT=$BUILD_EXIT" > ci-logs/build-primary-exit.txt
+          echo "::set-output name=primary_exit::$BUILD_EXIT"
+
+      - name: Check for index.html (and attempt static fallbacks if missing)
+        id: fallback_and_detect
+        run: |
+          set -euo pipefail
+          mkdir -p ci-logs
+          found_index=false
+
+          check_index() {
+            if [ -f dist/index.html ]; then
+              echo "dist/index.html found"
+              echo "path=dist" >> "$GITHUB_OUTPUT"
+              found_index=true
+              return 0
+            elif [ -f .output/public/index.html ]; then
+              echo ".output/public/index.html found"
+              echo "path=.output/public" >> "$GITHUB_OUTPUT"
+              found_index=true
+              return 0
+            elif [ -f .output/index.html ]; then
+              echo ".output/index.html found"
+              echo "path=.output" >> "$GITHUB_OUTPUT"
+              found_index=true
+              return 0
+            else
+              return 1
+            fi
+          }
+
+          echo "Checking initial build outputs for index.html..."
+          if check_index; then
+            echo "Initial build produced static output."
+            exit 0
+          fi
+
+          echo "No index.html found after primary build — attempting fallbacks to force client/static output."
+
+          # Fallback 1: build:dev script (vite build --mode development)
+          echo "Attempt fallback: npm run build:dev (or bun run build:dev)"
+          if command -v bun >/dev/null 2>&1; then
+            export PATH="${BUN_INSTALL:-$HOME/.bun}/bin:$PATH"
+            bun run build:dev > ci-logs/build-fallback-builddev.log 2>&1 || true
+          else
+            npm run build:dev > ci-logs/build-fallback-builddev.log 2>&1 || true
+          fi
+
+          if check_index; then
+            echo "Found index.html after build:dev"
+            exit 0
+          fi
+
+          # Fallback 2: force Vite production build (explicit npx vite build --force)
+          echo "Attempt fallback: npx vite build --mode production --force"
+          # run via npx to avoid assuming script presence
+          npx vite build --mode production --force > ci-logs/build-fallback-vite-force.log 2>&1 || true
+
+          if check_index; then
+            echo "Found index.html after npx vite build --force"
+            exit 0
+          fi
+
+          # Fallback 3: if nitro is available, attempt Nitro static build (preset static) which may produce .output/public
+          echo "Attempt fallback: nitro static build (if available)"
+          if (command -v nitro >/dev/null 2>&1) || (npx --no-install nitro --version >/dev/null 2>&1 2>/dev/null); then
+            # try npx nitro build --preset static
+            npx nitro build --preset static > ci-logs/build-fallback-nitro.log 2>&1 || true
+            # nitro may write to .output/public
+            if check_index; then
+              echo "Found index.html after nitro static build"
+              exit 0
+            fi
+          else
+            echo "nitro not available — skipping nitro fallback"
+          fi
+
+          # Fallback 4: attempt a simple Vite client build again (npx vite build)
+          echo "Attempt fallback: npx vite build (final attempt)"
+          npx vite build > ci-logs/build-fallback-vite.log 2>&1 || true
+
+          if check_index; then
+            echo "Found index.html after final npx vite build"
+            exit 0
+          fi
+
+          echo "All fallbacks exhausted — no index.html found in dist or .output/public or .output." >&2
+          # Write manifest of directories for debugging
+          echo "Repository root contents:" > ci-logs/fallback-summary.txt
+          ls -la >> ci-logs/fallback-summary.txt
+          echo "" >> ci-logs/fallback-summary.txt
+          for d in dist .output/public .output; do
+            echo "Checking $d" >> ci-logs/fallback-summary.txt
+            if [ -d "$d" ]; then
+              ls -la "$d" | sed -n '1,400p' >> ci-logs/fallback](#)
+
