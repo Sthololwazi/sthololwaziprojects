@@ -1,0 +1,155 @@
+# Insert into your existing workflow as the build job (or replace the existing job)
+jobs:
+  build-and-publish-debug:
+    name: Install → Typecheck → Lint → Build → Publish (debug + logs)
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: --no-deprecation
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Cache Bun & npm
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            ~/.npm
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/bun.lock','**/package-lock.json','**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
+      - name: Run install, tsc, lint, build (capture logs)
+        id: run_all
+        run: |
+          set -eo pipefail
+
+          mkdir -p ci-logs
+
+          # Install (prefer bun)
+          INSTALL_EXIT=0
+          if [ -f bun.lock ]; then
+            echo "Installing Bun..."
+            curl -fsSL https://bun.sh/install | bash -s -- --no-modify-path || true
+            export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+            if command -v bun >/dev/null 2>&1; then
+              bun --version || true
+              bun install > ci-logs/install.log 2>&1 || INSTALL_EXIT=$?
+            else
+              echo "bun not found after installer; falling back to npm" | tee ci-logs/install.log
+              npm ci >> ci-logs/install.log 2>&1 || INSTALL_EXIT=$?
+            fi
+          else
+            echo "No bun.lock; using npm ci"
+            npm ci > ci-logs/install.log 2>&1 || INSTALL_EXIT=$?
+          fi
+          echo "INSTALL_EXIT=$INSTALL_EXIT" > ci-logs/install_exit.txt
+
+          # Type-check
+          TSC_EXIT=0
+          echo "Running tsc..."
+          if command -v bun >/dev/null 2>&1; then
+            # try bunx first; fall back to npx
+            if command -v bunx >/dev/null 2>&1; then
+              bunx tsc --noEmit > ci-logs/tsc.log 2>&1 || TSC_EXIT=$?
+            else
+              bun run tsc --noEmit > ci-logs/tsc.log 2>&1 || TSC_EXIT=$?
+            fi
+          else
+            npx tsc --noEmit > ci-logs/tsc.log 2>&1 || TSC_EXIT=$?
+          fi
+          echo "TSC_EXIT=$TSC_EXIT" >> ci-logs/install_exit.txt
+
+          # Lint
+          LINT_EXIT=0
+          echo "Running lint..."
+          if command -v bun >/dev/null 2>&1; then
+            bun run lint > ci-logs/lint.log 2>&1 || LINT_EXIT=$?
+          else
+            npm run lint > ci-logs/lint.log 2>&1 || LINT_EXIT=$?
+          fi
+          echo "LINT_EXIT=$LINT_EXIT" >> ci-logs/install_exit.txt
+
+          # Build
+          BUILD_EXIT=0
+          echo "Running build..."
+          if command -v bun >/dev/null 2>&1; then
+            bun run build > ci-logs/build.log 2>&1 || BUILD_EXIT=$?
+          else
+            npm run build > ci-logs/build.log 2>&1 || BUILD_EXIT=$?
+          fi
+          echo "BUILD_EXIT=$BUILD_EXIT" >> ci-logs/install_exit.txt
+
+          # Summarize exit codes
+          echo "Summary exit codes:" | tee ci-logs/summary.txt
+          cat ci-logs/install_exit.txt | tee -a ci-logs/summary.txt
+
+          # List build outputs if any
+          echo "Listing build candidates:" >> ci-logs/summary.txt
+          for d in dist .output/public .output; do
+            if [ -d "$d" ]; then
+              echo "Contents of $d:" >> ci-logs/summary.txt
+              ls -la "$d" | sed -n '1,500p' >> ci-logs/summary.txt || true
+            else
+              echo "$d does not exist" >> ci-logs/summary.txt
+            fi
+          done
+
+          # Determine if any step failed
+          EXIT_SUM=$((INSTALL_EXIT + TSC_EXIT + LINT_EXIT + BUILD_EXIT))
+          echo "EXIT_SUM=$EXIT_SUM" >> ci-logs/summary.txt
+
+          # Always write outputs for the workflow to see
+          echo "::notice::Captured logs saved to ci-logs/ (install/tsc/lint/build + summary)"
+
+          # Save summary values to job output for conditional later
+          echo "::set-output name=exit_sum::$EXIT_SUM"
+        continue-on-error: false
+
+      - name: Upload logs artifact (always)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs
+          path: ci-logs
+
+      - name: Fail if any step failed
+        if: ${{ steps.run_all.outputs.exit_sum != '0' }}
+        run: |
+          echo "One or more steps failed (see ci-logs artifact). Exiting with non-zero."
+          exit 1
+
+      # (Optional) continue with Pages publish steps only if build succeeded:
+      - name: Determine deploy directory containing index.html
+        if: ${{ steps.run_all.outputs.exit_sum == '0' }}
+        id: set-deploy-path
+        run: |
+          set -euo pipefail
+          if [ -f dist/index.html ]; then
+            echo "path=dist" >> "$GITHUB_OUTPUT"
+          elif [ -f .output/public/index.html ]; then
+            echo "path=.output/public" >> "$GITHUB_OUTPUT"
+          elif [ -f .output/index.html ]; then
+            echo "path=.output" >> "$GITHUB_OUTPUT"
+          else
+            echo "ERROR: no index.html; build likely produced server bundle rather than static files." >&2
+            exit 1
+          fi
+
+      - name: Configure Pages
+        if: ${{ steps.run_all.outputs.exit_sum == '0' }}
+        uses: actions/config-pages@v3
+
+      - name: Upload Pages artifact
+        if: ${{ steps.run_all.outputs.exit_sum == '0' }}
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ${{ steps.set-deploy-path.outputs.path }}
+
+      - name: Deploy to Pages
+        if: ${{ steps.run_all.outputs.exit_sum == '0' }}
+        uses: actions/deploy-pages@v5
