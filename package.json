@@ -7,8 +7,9 @@
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "build:pages": "cross-env-shell GH_PAGES=1 \"vite build && node scripts/gh-pages-postbuild.mjs\"",
+    "build:pages": "vite build && node scripts/gh-pages-postbuild.mjs",
     "postbuild:pages": "node scripts/gh-pages-postbuild.mjs",
+
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
