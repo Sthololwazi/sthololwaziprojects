@@ -1,12 +1,11 @@
-// Slugs for static prerender. Kept as a plain module (no asset imports) so it
-// can be loaded directly by Node when Vite reads vite.config.ts.
+// Slugs for static prerender. Plain module with no asset/@-alias imports so
+// Node can load it directly when Vite reads vite.config.ts at startup.
 export const projectSlugs = [
   "500-rdp-houses",
-  "rural-school-construction",
-  "district-clinic-upgrade",
-  "msogwaba-water-reticulation",
-  "commercial-warehouse",
-  "community-hall",
+  "evander-hospital",
+  "tholinhlanhla-primary-school",
+  "mpumalanga-road-works",
+  "commercial-brickwork-package",
 ] as const;
 
 export const serviceSlugs = [

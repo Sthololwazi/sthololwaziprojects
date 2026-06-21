@@ -4,8 +4,10 @@
 // and sandbox detection. Do not add those plugins manually.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-import { projects } from "./src/data/projects";
-import { services } from "./src/data/services";
+// IMPORTANT: vite.config.ts is loaded by Node directly (not through Vite's
+// resolver), so we can only import plain modules with no `@/...` aliases or
+// asset imports. `slugs.ts` is the safe enumeration of dynamic route params.
+import { projectSlugs, serviceSlugs } from "./src/data/slugs";
 
 // GH Pages static mirror: built in CI with GH_PAGES=1 and served under
 // https://<user>.github.io/sthololwazi/. The Lovable SSR build leaves base "/"
@@ -13,20 +15,21 @@ import { services } from "./src/data/services";
 const isGhPages = process.env.GH_PAGES === "1";
 const ghPagesBase = "/sthololwazi/";
 
-// Routes the static prerender crawler needs to know about up front. Dynamic
-// segments must be enumerated — TanStack Start can't guess slugs.
-const prerenderRoutes = [
+const htmlRoutes = [
   "/",
   "/about",
   "/services",
   "/projects",
   "/contact",
-  ...services.map((s) => `/services/${s.slug}`),
-  ...projects.map((p) => `/projects/${p.slug}`),
+  ...serviceSlugs.map((s) => `/services/${s}`),
+  ...projectSlugs.map((s) => `/projects/${s}`),
+];
+
+const assetRoutes = [
   "/sitemap.xml",
   "/sitemap-pages.xml",
   "/sitemap-projects.xml",
-  ...projects.map((p) => `/api/og/projects/${p.slug}.svg`),
+  ...projectSlugs.map((s) => `/api/og/projects/${s}.svg`),
 ];
 
 export default defineConfig({
@@ -35,20 +38,17 @@ export default defineConfig({
   },
   ...(isGhPages
     ? {
-        // Force a fully static build outside the Lovable sandbox so the
-        // .output/public/ directory is publishable to GitHub Pages as-is.
+        // Fully static build for GitHub Pages — emits .output/public/ with
+        // pre-rendered HTML for every route below.
         nitro: { preset: "static" },
         tanstackStart: {
           prerender: {
             enabled: true,
             crawlLinks: true,
             failOnError: false,
-            routes: prerenderRoutes,
+            routes: [...htmlRoutes, ...assetRoutes],
           },
-          // Tell the router which paths to emit as fully static .html files.
-          pages: prerenderRoutes
-            .filter((r) => !r.includes(".xml") && !r.includes(".svg"))
-            .map((path) => ({ path, prerender: { enabled: true } })),
+          pages: htmlRoutes.map((path) => ({ path, prerender: { enabled: true } })),
         },
       }
     : {}),
