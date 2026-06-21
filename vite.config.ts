@@ -6,14 +6,14 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
+// GitHub Pages serves the site under https://<user>.github.io/<repo>/
+// When building the static mirror we set GH_PAGES=1 in CI so asset URLs are
+// prefixed with /sthololwazi/. The Lovable (SSR) build leaves base as "/".
+const isGhPages = process.env.GH_PAGES === "1";
+const ghPagesBase = "/sthololwazi/";
 
-    base: "/sthololwazi.github.io/", // must match your repo name exactly
-  plugins: [react()],
-  
+export default defineConfig({
+  vite: {
+    base: isGhPages ? ghPagesBase : "/",
   },
 });
