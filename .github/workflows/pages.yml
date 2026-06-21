@@ -1,0 +1,52 @@
+name: Deploy static mirror to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build static site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Build static mirror
+        env:
+          GH_PAGES: "1"
+        run: bun run build
+      - name: GitHub Pages housekeeping
+        run: |
+          # Disable Jekyll so paths starting with _ (e.g. _build assets) are served.
+          touch .output/public/.nojekyll
+          # SPA-style fallback for unknown URLs so client-side router can take over.
+          if [ -f .output/public/index.html ] && [ ! -f .output/public/404.html ]; then
+            cp .output/public/index.html .output/public/404.html
+          fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .output/public
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
