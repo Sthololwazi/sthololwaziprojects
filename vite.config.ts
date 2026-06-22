@@ -48,7 +48,7 @@ export default defineConfig({
             failOnError: false,
             routes: [...htmlRoutes, ...assetRoutes],
           },
-          pages: htmlRoutes.map((path) => ({ path, prerender: { enabled: true } })),
+          
         },
       }
     : {}),
