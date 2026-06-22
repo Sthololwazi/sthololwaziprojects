@@ -13,10 +13,11 @@ import { projectSlugs, serviceSlugs } from "./src/data/slugs";
 // https://<user>.github.io/sthololwazi/. The Lovable SSR build leaves base "/"
 // and uses the wrapper's default Cloudflare nitro preset.
 const isGhPages = process.env.GH_PAGES === "1";
-const ghPagesBase = "/sthololwazi/";
+const ghPagesBase = "/";
 
 const htmlRoutes = [
   "/",
+  "/home",
   "/about",
   "/services",
   "/projects",
