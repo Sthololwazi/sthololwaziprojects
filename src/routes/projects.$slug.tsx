@@ -2,26 +2,22 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { LogoWatermark } from "@/components/site/LogoWatermark";
 import { getProject, projects, type Project } from "@/data/projects";
-import { getRequestOrigin } from "@/lib/origin.functions";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: async ({ params }) => {
     const project = getProject(params.slug);
     if (!project) throw notFound();
-    let origin = "";
-    try {
-      origin = await getRequestOrigin();
-    } catch {
-      origin = "";
-    }
-    return { project, origin };
+    return { project };
   },
   head: ({ params, loaderData }) => {
     const p = loaderData?.project;
-    const origin = loaderData?.origin ?? "";
     const title = p ? `${p.name} — Sthololwazi Projects` : "Project — Sthololwazi Projects";
     const desc = p?.summary ?? "Project case study by Sthololwazi Projects.";
-    const ogImage = `${origin}/api/og/projects/${params.slug}`;
+    const canonical = `${SITE_URL}/projects/${params.slug}`;
+    // Absolute, with .svg extension so static crawlers (Twitter, WhatsApp,
+    // Slack) fetch a real image asset, not an HTML route.
+    const ogImage = `${SITE_URL}/api/og/projects/${params.slug}.svg`;
     return {
       meta: [
         { title },
@@ -29,7 +25,7 @@ export const Route = createFileRoute("/projects/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
-        { property: "og:url", content: `${origin}/projects/${params.slug}` },
+        { property: "og:url", content: canonical },
         { property: "og:image", content: ogImage },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
@@ -39,7 +35,7 @@ export const Route = createFileRoute("/projects/$slug")({
         { name: "twitter:description", content: desc },
         { name: "twitter:image", content: ogImage },
       ],
-      links: [{ rel: "canonical", href: `/projects/${params.slug}` }],
+      links: [{ rel: "canonical", href: canonical }],
       scripts: p
         ? [
             {
