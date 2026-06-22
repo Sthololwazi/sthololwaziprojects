@@ -29,6 +29,7 @@ const assetRoutes = [
   "/sitemap.xml",
   "/sitemap-pages.xml",
   "/sitemap-projects.xml",
+  "/robots.txt",
   ...projectSlugs.map((s) => `/api/og/projects/${s}.svg`),
 ];
 
@@ -40,7 +41,15 @@ export default defineConfig({
     ? {
         // Fully static build for GitHub Pages — emits .output/public/ with
         // pre-rendered HTML for every route below.
-        nitro: { preset: "static" },
+        nitro: { 
+          preset: "static",
+          publicAssets: [
+            {
+              dir: "./public",
+              maxAge: 60 * 60 * 24 * 365, // 1 year
+            }
+          ]
+        },
         tanstackStart: {
           prerender: {
             enabled: true,
