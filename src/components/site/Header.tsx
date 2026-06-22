@@ -31,8 +31,12 @@ export function Header() {
         <Link to="/" className="flex items-center gap-3" aria-label="Sthololwazi Projects home">
           <img src={logo.url} alt="" width={44} height={44} className="h-11 w-11 object-contain" />
           <div className="leading-tight hidden sm:block">
-            <div className="font-display text-[15px] tracking-tight text-foreground">Sthololwazi</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Projects (Pty) Ltd</div>
+            <div className="font-display text-[15px] tracking-tight text-foreground">
+              Sthololwazi
+            </div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Projects (Pty) Ltd
+            </div>
           </div>
         </Link>
 
@@ -60,9 +64,15 @@ export function Header() {
             onClick={() => setOpen((v) => !v)}
           >
             <span className="relative block w-4 h-3">
-              <span className={`absolute left-0 top-0 h-px w-full bg-current transition-transform ${open ? "translate-y-[6px] rotate-45" : ""}`} />
-              <span className={`absolute left-0 top-[6px] h-px w-full bg-current transition-opacity ${open ? "opacity-0" : ""}`} />
-              <span className={`absolute left-0 bottom-0 h-px w-full bg-current transition-transform ${open ? "-translate-y-[6px] -rotate-45" : ""}`} />
+              <span
+                className={`absolute left-0 top-0 h-px w-full bg-current transition-transform ${open ? "translate-y-[6px] rotate-45" : ""}`}
+              />
+              <span
+                className={`absolute left-0 top-[6px] h-px w-full bg-current transition-opacity ${open ? "opacity-0" : ""}`}
+              />
+              <span
+                className={`absolute left-0 bottom-0 h-px w-full bg-current transition-transform ${open ? "-translate-y-[6px] -rotate-45" : ""}`}
+              />
             </span>
           </button>
         </div>
@@ -81,7 +91,11 @@ export function Header() {
                 {n.label}
               </Link>
             ))}
-            <Link to="/contact" onClick={() => setOpen(false)} className="btn-primary self-start mt-2">
+            <Link
+              to="/contact"
+              onClick={() => setOpen(false)}
+              className="btn-primary self-start mt-2"
+            >
               Request a quote
             </Link>
           </nav>

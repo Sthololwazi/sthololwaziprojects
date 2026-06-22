@@ -30,10 +30,22 @@ export const services: ServiceDetail[] = [
       "Every project is sequenced around testing milestones, ward-level engagement and a documented quality plan, so handover happens on time and on spec.",
     ],
     capabilities: [
-      { title: "Roads & stormwater", description: "Surface preparation, layerworks, asphalt and concrete to SANS 1200." },
-      { title: "Water reticulation", description: "Bulk and reticulated water mains, valve chambers, pressure testing." },
-      { title: "Sewer & sanitation", description: "Gravity and rising sewers, manholes, pump stations and house connections." },
-      { title: "Bulk earthworks", description: "Cut to fill, layerworks, compaction testing and platform preparation." },
+      {
+        title: "Roads & stormwater",
+        description: "Surface preparation, layerworks, asphalt and concrete to SANS 1200.",
+      },
+      {
+        title: "Water reticulation",
+        description: "Bulk and reticulated water mains, valve chambers, pressure testing.",
+      },
+      {
+        title: "Sewer & sanitation",
+        description: "Gravity and rising sewers, manholes, pump stations and house connections.",
+      },
+      {
+        title: "Bulk earthworks",
+        description: "Cut to fill, layerworks, compaction testing and platform preparation.",
+      },
     ],
     standards: ["SANS 1200", "CIDB 10127071", "ISO-aligned quality plan"],
     cta: "Request a civil works quote",
@@ -51,12 +63,27 @@ export const services: ServiceDetail[] = [
       "Every brick, tile and pipe is installed to SANS standards, with certified plumbers, tilers, carpenters and welders working under a single site supervisor.",
     ],
     capabilities: [
-      { title: "RDP & social housing", description: "Full NHBRC-aligned delivery, foundations through to handover." },
-      { title: "Commercial structures", description: "Retail, office and light industrial — SANS 10400 fire compliant." },
-      { title: "Renovations & maintenance", description: "Refurbishment and ongoing site upkeep with seamless finishes." },
+      {
+        title: "RDP & social housing",
+        description: "Full NHBRC-aligned delivery, foundations through to handover.",
+      },
+      {
+        title: "Commercial structures",
+        description: "Retail, office and light industrial — SANS 10400 fire compliant.",
+      },
+      {
+        title: "Renovations & maintenance",
+        description: "Refurbishment and ongoing site upkeep with seamless finishes.",
+      },
       { title: "Ceilings & drywall", description: "Fire-rated and acoustic systems to SANS 523." },
-      { title: "Plumbing & tiling", description: "SANS 10252 / 10254 compliant plumbing and precision tiling." },
-      { title: "Carpentry, welding & fabrication", description: "Roof trusses, joinery, ARC / MIG / TIG metalwork." },
+      {
+        title: "Plumbing & tiling",
+        description: "SANS 10252 / 10254 compliant plumbing and precision tiling.",
+      },
+      {
+        title: "Carpentry, welding & fabrication",
+        description: "Roof trusses, joinery, ARC / MIG / TIG metalwork.",
+      },
     ],
     standards: ["NHBRC 3000190954", "SANS 10400", "SANS 10252 / 10254", "SANS 523"],
     cta: "Request a building works quote",
@@ -74,10 +101,22 @@ export const services: ServiceDetail[] = [
       "Every load is documented with batch certificates and weighbridge slips, so quality control is verifiable from yard to placement.",
     ],
     capabilities: [
-      { title: "Bricks, blocks & cement", description: "Volume supply direct to site with quality-controlled batching." },
-      { title: "Aggregates & sand", description: "Crushed stone, river sand and base material in graded specs." },
-      { title: "Steel & reinforcement", description: "Rebar, mesh and structural steel to engineer schedules." },
-      { title: "Site consumables", description: "PPE, formwork, fasteners and finishing materials." },
+      {
+        title: "Bricks, blocks & cement",
+        description: "Volume supply direct to site with quality-controlled batching.",
+      },
+      {
+        title: "Aggregates & sand",
+        description: "Crushed stone, river sand and base material in graded specs.",
+      },
+      {
+        title: "Steel & reinforcement",
+        description: "Rebar, mesh and structural steel to engineer schedules.",
+      },
+      {
+        title: "Site consumables",
+        description: "PPE, formwork, fasteners and finishing materials.",
+      },
     ],
     standards: ["SANS-compliant batching", "Verified weighbridge slips", "CSD MAAA0446751"],
     cta: "Request a supply quote",

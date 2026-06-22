@@ -9,15 +9,25 @@ export const Route = createFileRoute("/projects")({
   head: () => ({
     meta: [
       { title: "Projects — Sthololwazi Projects · Track Record" },
-      { name: "description", content: "Browse the Sthololwazi Projects portfolio — from a R53M national housing programme to hospital and school renovations across Mpumalanga." },
+      {
+        name: "description",
+        content:
+          "Browse the Sthololwazi Projects portfolio — from a R53M national housing programme to hospital and school renovations across Mpumalanga.",
+      },
       { property: "og:title", content: "Projects — Sthololwazi Projects" },
-      { property: "og:description", content: "Community infrastructure, healthcare facilities and national housing delivery." },
+      {
+        property: "og:description",
+        content: "Community infrastructure, healthcare facilities and national housing delivery.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/projects" },
       { property: "og:image", content: rdp },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Projects — Sthololwazi Projects" },
-      { name: "twitter:description", content: "A portfolio measured in homes built and lives changed." },
+      {
+        name: "twitter:description",
+        content: "A portfolio measured in homes built and lives changed.",
+      },
       { name: "twitter:image", content: rdp },
     ],
     links: [{ rel: "canonical", href: "/projects" }],
@@ -55,11 +65,15 @@ function Projects() {
     <SiteLayout>
       {/* HERO */}
       <section className="relative pt-40 pb-16 container-page overflow-hidden">
-        <LogoWatermark className="absolute -right-24 -top-12 w-[420px] hidden md:block" opacity={0.06} />
+        <LogoWatermark
+          className="absolute -right-24 -top-12 w-[420px] hidden md:block"
+          opacity={0.06}
+        />
         <div className="relative">
           <div className="eyebrow">Projects</div>
           <h1 className="display-xl mt-6 max-w-4xl">
-            A portfolio measured in <span className="italic-accent">homes built</span> and lives changed.
+            A portfolio measured in <span className="italic-accent">homes built</span> and lives
+            changed.
           </h1>
           <p className="mt-10 max-w-2xl text-lg text-muted-foreground leading-relaxed">
             From the renovation of a community primary school to project management of 500 RDP
@@ -74,7 +88,8 @@ function Projects() {
         <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2">
           {(["All", ...categories] as Filter[]).map((c) => {
             const active = filter === c;
-            const count = c === "All" ? projects.length : projects.filter((p) => p.category === c).length;
+            const count =
+              c === "All" ? projects.length : projects.filter((p) => p.category === c).length;
             return (
               <button
                 key={c}
@@ -87,7 +102,9 @@ function Projects() {
                 }`}
               >
                 {c}
-                <span className={`text-[10px] font-mono ${active ? "text-gold" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-[10px] font-mono ${active ? "text-gold" : "text-muted-foreground"}`}
+                >
                   {String(count).padStart(2, "0")}
                 </span>
               </button>
@@ -99,7 +116,9 @@ function Projects() {
       {/* GRID */}
       <section className="container-page pb-24">
         {filtered.length === 0 ? (
-          <p className="py-20 text-center text-muted-foreground">No projects in this category yet.</p>
+          <p className="py-20 text-center text-muted-foreground">
+            No projects in this category yet.
+          </p>
         ) : (
           <div className="grid gap-x-8 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((p) => (
@@ -124,10 +143,16 @@ function Projects() {
                 </div>
                 <div className="mt-5 flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="font-display text-2xl leading-tight group-hover:text-forest transition-colors">{p.name}</h2>
-                    <p className="text-sm text-muted-foreground mt-1">{p.location} · {p.year}</p>
+                    <h2 className="font-display text-2xl leading-tight group-hover:text-forest transition-colors">
+                      {p.name}
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {p.location} · {p.year}
+                    </p>
                   </div>
-                  <span className="font-mono text-xs text-gold whitespace-nowrap pt-1">{p.value}</span>
+                  <span className="font-mono text-xs text-gold whitespace-nowrap pt-1">
+                    {p.value}
+                  </span>
                 </div>
               </Link>
             ))}
@@ -135,7 +160,13 @@ function Projects() {
             {/* UPLOAD / ADD NEW SLOT */}
             <div className="rounded-2xl border-2 border-dashed border-border p-8 flex flex-col items-center justify-center text-center min-h-[320px] hover:border-forest hover:bg-forest-light/40 transition-colors group">
               <div className="h-14 w-14 rounded-full bg-gold-light flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-forest" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-6 h-6 text-forest"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <path d="M12 5v14M5 12h14" strokeLinecap="round" />
                 </svg>
               </div>
@@ -143,7 +174,10 @@ function Projects() {
               <p className="text-sm text-muted-foreground mt-2 max-w-[26ch]">
                 Reserved space — drop in your latest completed build, with photos and a summary.
               </p>
-              <Link to="/contact" className="mt-5 text-[11px] uppercase tracking-[0.18em] text-forest font-semibold group-hover:text-gold">
+              <Link
+                to="/contact"
+                className="mt-5 text-[11px] uppercase tracking-[0.18em] text-forest font-semibold group-hover:text-gold"
+              >
                 Request upload →
               </Link>
             </div>
@@ -161,7 +195,9 @@ function Projects() {
           ].map(([n, l]) => (
             <div key={l} className="border-t border-border pt-8">
               <div className="stat-num">{n}</div>
-              <div className="mt-4 text-sm text-muted-foreground max-w-[22ch] leading-snug">{l}</div>
+              <div className="mt-4 text-sm text-muted-foreground max-w-[22ch] leading-snug">
+                {l}
+              </div>
             </div>
           ))}
         </div>
@@ -175,8 +211,18 @@ function Projects() {
             <div className="eyebrow">Client reference</div>
             <p className="font-display text-3xl md:text-4xl mt-5">Biston — Shirdo Trading</p>
             <div className="mt-6 flex flex-wrap gap-6 text-sm text-muted-foreground">
-              <span>Tel: <a className="font-mono text-foreground" href="tel:+27836998687">083 699 8687</a></span>
-              <span>Tel: <a className="font-mono text-foreground" href="tel:+27137457232">013 745 7232</a></span>
+              <span>
+                Tel:{" "}
+                <a className="font-mono text-foreground" href="tel:+27836998687">
+                  083 699 8687
+                </a>
+              </span>
+              <span>
+                Tel:{" "}
+                <a className="font-mono text-foreground" href="tel:+27137457232">
+                  013 745 7232
+                </a>
+              </span>
             </div>
           </div>
         </div>
@@ -184,8 +230,12 @@ function Projects() {
 
       <section className="container-page pb-32">
         <div className="rounded-3xl bg-forest text-white p-12 md:p-16 flex flex-wrap items-center justify-between gap-6">
-          <p className="font-display text-3xl md:text-4xl max-w-xl">Add your project to the portfolio.</p>
-          <Link to="/contact" className="btn-gold">Start a project</Link>
+          <p className="font-display text-3xl md:text-4xl max-w-xl">
+            Add your project to the portfolio.
+          </p>
+          <Link to="/contact" className="btn-gold">
+            Start a project
+          </Link>
         </div>
       </section>
     </SiteLayout>

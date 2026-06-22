@@ -8,15 +8,25 @@ export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
       { title: "Services — Civil, Building & Material Supply · Sthololwazi Projects" },
-      { name: "description", content: "Civil construction, building construction and material supply — three integrated divisions delivered to SANS standards across Mpumalanga." },
+      {
+        name: "description",
+        content:
+          "Civil construction, building construction and material supply — three integrated divisions delivered to SANS standards across Mpumalanga.",
+      },
       { property: "og:title", content: "Services — Civil, Building & Material Supply" },
-      { property: "og:description", content: "Three integrated divisions, one accountable partner." },
+      {
+        property: "og:description",
+        content: "Three integrated divisions, one accountable partner.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/services" },
       { property: "og:image", content: civil },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Services — Sthololwazi Projects" },
-      { name: "twitter:description", content: "Civil, building and material supply across Mpumalanga." },
+      {
+        name: "twitter:description",
+        content: "Civil, building and material supply across Mpumalanga.",
+      },
       { name: "twitter:image", content: civil },
     ],
     links: [{ rel: "canonical", href: "/services" }],
@@ -45,9 +55,15 @@ const divisions = [
     title: "Civil Construction",
     intro: "Municipal and roads infrastructure delivered to stringent engineering specifications.",
     items: [
-      ["Roads & stormwater", "Surface preparation, base layers, asphalt and concrete to SANS 1200."],
+      [
+        "Roads & stormwater",
+        "Surface preparation, base layers, asphalt and concrete to SANS 1200.",
+      ],
       ["Water reticulation", "Bulk and reticulated water mains, valve chambers, pressure testing."],
-      ["Sewer & sanitation", "Gravity & rising sewers, manholes, pump stations and house connections."],
+      [
+        "Sewer & sanitation",
+        "Gravity & rising sewers, manholes, pump stations and house connections.",
+      ],
       ["Bulk earthworks", "Cut to fill, layerworks, compaction testing and platform preparation."],
     ],
   },
@@ -56,11 +72,15 @@ const divisions = [
     img: craft,
     n: "02",
     title: "Building Construction",
-    intro: "From RDP homes to commercial complexes — installed to SANS standards with master craftsmanship.",
+    intro:
+      "From RDP homes to commercial complexes — installed to SANS standards with master craftsmanship.",
     items: [
       ["RDP & social housing", "Full NHBRC-aligned delivery, foundations through to handover."],
       ["Commercial structures", "Retail, office and light industrial — SANS 10400 fire compliant."],
-      ["Renovations & maintenance", "Refurbishment and ongoing site upkeep with seamless finishes."],
+      [
+        "Renovations & maintenance",
+        "Refurbishment and ongoing site upkeep with seamless finishes.",
+      ],
       ["Ceilings & drywall partitioning", "Fire-rated and acoustic systems to SANS 523."],
       ["Plumbing & tiling", "SANS 10252 / 10254 compliant plumbing and precision tiling."],
       ["Carpentry, welding & fabrication", "Roof trusses, joinery, ARC / MIG / TIG metalwork."],
@@ -81,12 +101,23 @@ const divisions = [
   },
 ] as const;
 
-
 const valueAdds = [
-  ["Dual-sector advantage", "Construction expertise plus integrated material supply — bulk savings, one accountable party from procurement to handover."],
-  ["De-risked community engagement", "Ward-level hiring and councillor partnerships generate social goodwill and reduce site disruption."],
-  ["B-BBEE empowerment multiplier", "Level 1, 135% procurement recognition — measurable score uplift for every client."],
-  ["Regional technical judgement", "Built for Mpumalanga conditions, materials, climate and compliance regime."],
+  [
+    "Dual-sector advantage",
+    "Construction expertise plus integrated material supply — bulk savings, one accountable party from procurement to handover.",
+  ],
+  [
+    "De-risked community engagement",
+    "Ward-level hiring and councillor partnerships generate social goodwill and reduce site disruption.",
+  ],
+  [
+    "B-BBEE empowerment multiplier",
+    "Level 1, 135% procurement recognition — measurable score uplift for every client.",
+  ],
+  [
+    "Regional technical judgement",
+    "Built for Mpumalanga conditions, materials, climate and compliance regime.",
+  ],
 ];
 
 function Services() {
@@ -95,7 +126,8 @@ function Services() {
       <section className="pt-40 pb-20 container-page">
         <div className="eyebrow">Services</div>
         <h1 className="display-xl mt-6 max-w-4xl">
-          Three integrated divisions. <span className="italic-accent">One</span> accountable partner.
+          Three integrated divisions. <span className="italic-accent">One</span> accountable
+          partner.
         </h1>
         <p className="mt-10 max-w-2xl text-lg text-muted-foreground leading-relaxed">
           A full-spectrum offering across civil construction, building construction and material
@@ -107,9 +139,18 @@ function Services() {
       {divisions.map((d, i) => (
         <section key={d.n} className={i % 2 ? "bg-limestone" : ""}>
           <div className="container-page py-24 md:py-32">
-            <div className={`grid gap-12 md:grid-cols-12 items-center ${i % 2 ? "md:[&>div:first-child]:order-2" : ""}`}>
+            <div
+              className={`grid gap-12 md:grid-cols-12 items-center ${i % 2 ? "md:[&>div:first-child]:order-2" : ""}`}
+            >
               <div className="md:col-span-6">
-                <img src={d.img} alt={d.title} width={1280} height={896} loading="lazy" className="rounded-2xl object-cover aspect-[4/3] w-full" />
+                <img
+                  src={d.img}
+                  alt={d.title}
+                  width={1280}
+                  height={896}
+                  loading="lazy"
+                  className="rounded-2xl object-cover aspect-[4/3] w-full"
+                />
               </div>
               <div className="md:col-span-5 md:col-start-8">
                 <div className="font-mono text-xs text-gold">{d.n} · Division</div>
@@ -118,8 +159,12 @@ function Services() {
                 <ul className="mt-10 divide-y divide-border border-y border-border">
                   {d.items.map(([t, dd]) => (
                     <li key={t} className="py-4 grid grid-cols-12 gap-4">
-                      <div className="col-span-12 sm:col-span-5 font-medium text-foreground">{t}</div>
-                      <div className="col-span-12 sm:col-span-7 text-sm text-muted-foreground">{dd}</div>
+                      <div className="col-span-12 sm:col-span-5 font-medium text-foreground">
+                        {t}
+                      </div>
+                      <div className="col-span-12 sm:col-span-7 text-sm text-muted-foreground">
+                        {dd}
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -127,9 +172,10 @@ function Services() {
                   <Link to="/services/$slug" params={{ slug: d.slug }} className="btn-primary">
                     Explore {d.title} →
                   </Link>
-                  <Link to="/contact" className="btn-ghost">Request a quote</Link>
+                  <Link to="/contact" className="btn-ghost">
+                    Request a quote
+                  </Link>
                 </div>
-
               </div>
             </div>
           </div>
@@ -154,10 +200,16 @@ function Services() {
       <section className="container-page pb-32">
         <div className="rounded-3xl bg-onyx text-white p-12 md:p-16 flex flex-wrap items-center justify-between gap-6">
           <div className="max-w-lg">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-gold font-semibold">Project enquiry</div>
-            <p className="font-display text-3xl md:text-4xl mt-4">Tell us what you're building. We'll respond within 48 hours.</p>
+            <div className="text-[11px] uppercase tracking-[0.22em] text-gold font-semibold">
+              Project enquiry
+            </div>
+            <p className="font-display text-3xl md:text-4xl mt-4">
+              Tell us what you're building. We'll respond within 48 hours.
+            </p>
           </div>
-          <Link to="/contact" className="btn-gold">Request a quote</Link>
+          <Link to="/contact" className="btn-gold">
+            Request a quote
+          </Link>
         </div>
       </section>
     </SiteLayout>

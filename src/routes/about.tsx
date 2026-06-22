@@ -7,9 +7,16 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About — Sthololwazi Projects" },
-      { name: "description", content: "100% black-owned, B-BBEE Level 1 civil and building contractor founded in 2017 in Mbombela, Mpumalanga." },
+      {
+        name: "description",
+        content:
+          "100% black-owned, B-BBEE Level 1 civil and building contractor founded in 2017 in Mbombela, Mpumalanga.",
+      },
       { property: "og:title", content: "About — Sthololwazi Projects" },
-      { property: "og:description", content: "An infrastructure and social development partner, not just a contractor." },
+      {
+        property: "og:description",
+        content: "An infrastructure and social development partner, not just a contractor.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/about" },
       { property: "og:image", content: foreman },
@@ -35,12 +42,24 @@ export const Route = createFileRoute("/about")({
 });
 
 const values = [
-  ["Empowerment", "Success measured not just by structures, but by workers upskilled and local enterprises sustained."],
+  [
+    "Empowerment",
+    "Success measured not just by structures, but by workers upskilled and local enterprises sustained.",
+  ],
   ["Integrity", "Honesty, transparency, and strict adherence to ethical construction practices."],
-  ["Community first", "The local community is our primary stakeholder — their employment, their safety, their long-term benefit."],
-  ["Quality without compromise", "From an RDP home to a commercial complex — every brick to SANS standards."],
+  [
+    "Community first",
+    "The local community is our primary stakeholder — their employment, their safety, their long-term benefit.",
+  ],
+  [
+    "Quality without compromise",
+    "From an RDP home to a commercial complex — every brick to SANS standards.",
+  ],
   ["Safety", "Zero-harm site environments through rigorous protocols and continuous training."],
-  ["Innovation & efficiency", "Innovative solutions and efficient internal processes for every client we serve."],
+  [
+    "Innovation & efficiency",
+    "Innovative solutions and efficient internal processes for every client we serve.",
+  ],
 ];
 
 const registrations = [
@@ -58,19 +77,34 @@ function About() {
       <section className="pt-40 pb-20 container-page">
         <div className="eyebrow">About</div>
         <h1 className="display-xl mt-6 max-w-4xl">
-          A deliberate engine for <span className="italic-accent">economic inclusion</span> — operating from the heart of Mpumalanga.
+          A deliberate engine for <span className="italic-accent">economic inclusion</span> —
+          operating from the heart of Mpumalanga.
         </h1>
         <p className="mt-10 max-w-2xl text-lg text-muted-foreground leading-relaxed">
-          Sthololwazi Projects is a proudly South African, 100% black-owned construction and material
-          supply company based in Mbombela. Founded in 2017, established as a direct response to
-          the need for technically excellent construction services that simultaneously advance the
-          principles of Broad-based Black Economic Empowerment.
+          Sthololwazi Projects is a proudly South African, 100% black-owned construction and
+          material supply company based in Mbombela. Founded in 2017, established as a direct
+          response to the need for technically excellent construction services that simultaneously
+          advance the principles of Broad-based Black Economic Empowerment.
         </p>
       </section>
 
       <section className="container-page grid gap-8 md:grid-cols-2">
-        <img src={craft} alt="Brickwork detail" width={1280} height={1280} loading="lazy" className="rounded-2xl object-cover aspect-[4/3] w-full" />
-        <img src={foreman} alt="Site foreman" width={1024} height={1280} loading="lazy" className="rounded-2xl object-cover aspect-[4/3] w-full" />
+        <img
+          src={craft}
+          alt="Brickwork detail"
+          width={1280}
+          height={1280}
+          loading="lazy"
+          className="rounded-2xl object-cover aspect-[4/3] w-full"
+        />
+        <img
+          src={foreman}
+          alt="Site foreman"
+          width={1024}
+          height={1280}
+          loading="lazy"
+          className="rounded-2xl object-cover aspect-[4/3] w-full"
+        />
       </section>
 
       {/* Vision / Mission */}
@@ -86,8 +120,8 @@ function About() {
           <div>
             <div className="eyebrow">Mission</div>
             <p className="font-display text-2xl mt-5 leading-snug">
-              Deliver civil and building works of national standard, while converting every site into
-              a school of skills for the surrounding community.
+              Deliver civil and building works of national standard, while converting every site
+              into a school of skills for the surrounding community.
             </p>
           </div>
           <div>
@@ -103,7 +137,9 @@ function About() {
       <section className="bg-limestone py-28">
         <div className="container-page">
           <div className="eyebrow">Core values</div>
-          <h2 className="display-lg mt-5 max-w-2xl">The principles that hold up every site we open.</h2>
+          <h2 className="display-lg mt-5 max-w-2xl">
+            The principles that hold up every site we open.
+          </h2>
           <div className="mt-16 grid gap-px bg-border md:grid-cols-3 rounded-2xl overflow-hidden">
             {values.map(([t, d], i) => (
               <div key={t} className="bg-background p-8 md:p-10">
@@ -130,7 +166,9 @@ function About() {
           <div className="md:col-span-8 grid gap-px bg-border md:grid-cols-3 rounded-xl overflow-hidden">
             {registrations.map(([k, v]) => (
               <div key={k} className="bg-background p-6">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-forest font-semibold">{k}</div>
+                <div className="text-[11px] uppercase tracking-[0.18em] text-forest font-semibold">
+                  {k}
+                </div>
                 <div className="font-mono text-base mt-2">{v}</div>
               </div>
             ))}
@@ -144,7 +182,9 @@ function About() {
             <div className="eyebrow">Ready to talk?</div>
             <p className="font-display text-3xl mt-3">Let's scope your next project together.</p>
           </div>
-          <Link to="/contact" className="btn-primary">Get in touch</Link>
+          <Link to="/contact" className="btn-primary">
+            Get in touch
+          </Link>
         </div>
       </section>
     </SiteLayout>
