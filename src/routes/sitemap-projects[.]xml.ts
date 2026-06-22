@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { projects } from "@/data/projects";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/sitemap-projects.xml")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
-        const origin = new URL(request.url).origin;
+      GET: async () => {
+        const origin = SITE_URL;
         const urls = projects
           .map(
             (p) =>
