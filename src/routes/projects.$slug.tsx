@@ -62,8 +62,12 @@ export const Route = createFileRoute("/projects/$slug")({
       <div className="container-page py-40 text-center">
         <div className="eyebrow">404</div>
         <h1 className="display-lg mt-4">Project not found</h1>
-        <p className="mt-6 text-muted-foreground">The project you're looking for doesn't exist or has moved.</p>
-        <Link to="/projects" className="btn-primary mt-10 inline-flex">← Back to projects</Link>
+        <p className="mt-6 text-muted-foreground">
+          The project you're looking for doesn't exist or has moved.
+        </p>
+        <Link to="/projects" className="btn-primary mt-10 inline-flex">
+          ← Back to projects
+        </Link>
       </div>
     </SiteLayout>
   ),
@@ -79,7 +83,10 @@ function ProjectDetail() {
       {/* HERO */}
       <section className="relative pt-32 pb-16">
         <div className="container-page">
-          <Link to="/projects" className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-forest">
+          <Link
+            to="/projects"
+            className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-forest"
+          >
             ← All projects
           </Link>
           <div className="mt-8 grid gap-12 lg:grid-cols-12 items-end">
@@ -89,7 +96,9 @@ function ProjectDetail() {
                 {p.category}
               </div>
               <h1 className="display-xl mt-6">{p.name}</h1>
-              <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">{p.summary}</p>
+              <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
+                {p.summary}
+              </p>
             </div>
             <dl className="lg:col-span-5 grid grid-cols-2 gap-x-8 gap-y-6">
               <Spec label="Year" value={p.year} />
@@ -147,7 +156,9 @@ function ProjectDetail() {
         <div className="container-page">
           <div className="flex items-end justify-between flex-wrap gap-4 mb-12">
             <h2 className="display-md">More projects</h2>
-            <Link to="/projects" className="btn-ghost">View all →</Link>
+            <Link to="/projects" className="btn-ghost">
+              View all →
+            </Link>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {related.map((r) => (
@@ -163,8 +174,12 @@ function ProjectDetail() {
                   />
                 </div>
                 <div className="mt-4">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-gold">{r.category}</div>
-                  <h3 className="font-display text-xl mt-2 group-hover:text-forest transition-colors">{r.name}</h3>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-gold">
+                    {r.category}
+                  </div>
+                  <h3 className="font-display text-xl mt-2 group-hover:text-forest transition-colors">
+                    {r.name}
+                  </h3>
                 </div>
               </Link>
             ))}
@@ -175,8 +190,12 @@ function ProjectDetail() {
       {/* CTA */}
       <section className="container-page py-24">
         <div className="rounded-3xl bg-onyx text-white p-12 md:p-16 flex flex-wrap items-center justify-between gap-6">
-          <p className="font-display text-3xl md:text-4xl max-w-xl">Have a similar project in mind?</p>
-          <Link to="/contact" className="btn-gold">Request a quote</Link>
+          <p className="font-display text-3xl md:text-4xl max-w-xl">
+            Have a similar project in mind?
+          </p>
+          <Link to="/contact" className="btn-gold">
+            Request a quote
+          </Link>
         </div>
       </section>
     </SiteLayout>
@@ -187,7 +206,11 @@ function Spec({ label, value, mono = false }: { label: string; value: string; mo
   return (
     <div>
       <dt className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</dt>
-      <dd className={`mt-2 text-foreground ${mono ? "font-mono text-base" : "font-display text-lg"}`}>{value}</dd>
+      <dd
+        className={`mt-2 text-foreground ${mono ? "font-mono text-base" : "font-display text-lg"}`}
+      >
+        {value}
+      </dd>
     </div>
   );
 }

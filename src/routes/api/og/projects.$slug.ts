@@ -89,7 +89,8 @@ export const Route = createFileRoute("/api/og/projects/$slug")({
           headers: {
             "Content-Type": "image/svg+xml; charset=utf-8",
             // Long cache for social crawlers; SWR while regenerating.
-            "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000, immutable",
+            "Cache-Control":
+              "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000, immutable",
             "Content-Disposition": `inline; filename="${params.slug}.svg"`,
             "X-Content-Type-Options": "nosniff",
             Vary: "Accept",
@@ -99,4 +100,3 @@ export const Route = createFileRoute("/api/og/projects/$slug")({
     },
   },
 });
-

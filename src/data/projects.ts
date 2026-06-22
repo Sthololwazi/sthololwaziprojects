@@ -30,7 +30,8 @@ export const projects: Project[] = [
     location: "Mpumalanga, South Africa",
     value: "R 53,000,000",
     client: "Department of Human Settlements",
-    summary: "Project management of large-scale national housing delivery — 500 NHBRC-compliant homes from foundation to handover.",
+    summary:
+      "Project management of large-scale national housing delivery — 500 NHBRC-compliant homes from foundation to handover.",
     description: [
       "Sthololwazi Projects served as principal project manager on a 500-unit national housing delivery programme in Mpumalanga, coordinating procurement, construction, quality control and beneficiary handover across multiple sub-contractors.",
       "Every unit was built to NHBRC technical requirements with full document control, three-way invoice matching, and ward-level community engagement throughout the build cycle.",
@@ -54,7 +55,8 @@ export const projects: Project[] = [
     location: "Evander, Mpumalanga",
     value: "R 70,000",
     client: "Provincial Department of Health",
-    summary: "Renovation works at a working healthcare facility — completed without disruption to clinical operations.",
+    summary:
+      "Renovation works at a working healthcare facility — completed without disruption to clinical operations.",
     description: [
       "Targeted renovation of selected wards and circulation areas at Evander Hospital, delivered to provincial Department of Health specifications.",
       "Construction was sequenced around live clinical operations, with strict infection-control protocols, dust containment and after-hours work where required.",
@@ -75,7 +77,8 @@ export const projects: Project[] = [
     location: "Mbombela, Mpumalanga",
     value: "R 97,000",
     client: "Department of Basic Education",
-    summary: "Renovation of classroom blocks, ablutions and finishes — delivered with a full local labour cohort.",
+    summary:
+      "Renovation of classroom blocks, ablutions and finishes — delivered with a full local labour cohort.",
     description: [
       "Renovation works across the Tholinhlanhla Primary School campus — classroom finishes, ablutions, painting and grounds — delivered to Department of Basic Education specifications.",
       "The build was used as a community-anchored skills transfer site, with ward-resident artisans assessed and registered on our Skills Transfer Register.",
@@ -132,7 +135,13 @@ export const projects: Project[] = [
   },
 ];
 
-export const categories: ProjectCategory[] = ["Housing", "Healthcare", "Education", "Civil", "Commercial"];
+export const categories: ProjectCategory[] = [
+  "Housing",
+  "Healthcare",
+  "Education",
+  "Civil",
+  "Commercial",
+];
 
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);

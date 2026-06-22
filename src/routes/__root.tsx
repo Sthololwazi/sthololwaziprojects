@@ -78,17 +78,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Sthololwazi Projects — Civil & Building Construction" },
-      { name: "description", content: "100% black-owned, B-BBEE Level 1 civil and building contractor based in Mbombela, Mpumalanga. Building infrastructure. Empowering communities." },
+      {
+        name: "description",
+        content:
+          "100% black-owned, B-BBEE Level 1 civil and building contractor based in Mbombela, Mpumalanga. Building infrastructure. Empowering communities.",
+      },
       { name: "theme-color", content: "#1A5C2A" },
       { property: "og:site_name", content: "Sthololwazi Projects" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:title", content: "Sthololwazi Projects — Civil & Building Construction" },
       { name: "twitter:title", content: "Sthololwazi Projects — Civil & Building Construction" },
-      { property: "og:description", content: "100% black-owned, B-BBEE Level 1 civil and building contractor based in Mbombela, Mpumalanga. Building infrastructure. Empowering communities." },
-      { name: "twitter:description", content: "100% black-owned, B-BBEE Level 1 civil and building contractor based in Mbombela, Mpumalanga. Building infrastructure. Empowering communities." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/aPjJ3FQth5OWxFvYLVct2x9189R2/social-images/social-1781777585943-logo.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/aPjJ3FQth5OWxFvYLVct2x9189R2/social-images/social-1781777585943-logo.webp" },
+      {
+        property: "og:description",
+        content:
+          "100% black-owned, B-BBEE Level 1 civil and building contractor based in Mbombela, Mpumalanga. Building infrastructure. Empowering communities.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "100% black-owned, B-BBEE Level 1 civil and building contractor based in Mbombela, Mpumalanga. Building infrastructure. Empowering communities.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/aPjJ3FQth5OWxFvYLVct2x9189R2/social-images/social-1781777585943-logo.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/aPjJ3FQth5OWxFvYLVct2x9189R2/social-images/social-1781777585943-logo.webp",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -107,7 +127,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@type": "Organization",
           name: "Sthololwazi Projects (Pty) Ltd",
           alternateName: "Sthololwazi Projects",
-          description: "100% black-owned, B-BBEE Level 1 civil and building construction company in Mbombela, Mpumalanga.",
+          description:
+            "100% black-owned, B-BBEE Level 1 civil and building construction company in Mbombela, Mpumalanga.",
           foundingDate: "2017",
           taxID: "9071664248",
           email: "projectsithololwazi@gmail.com",
@@ -124,7 +145,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           identifier: [
             { "@type": "PropertyValue", propertyID: "CIDB", value: "10127071" },
             { "@type": "PropertyValue", propertyID: "NHBRC", value: "3000190954" },
-            { "@type": "PropertyValue", propertyID: "Company Registration", value: "2017/135433/07" },
+            {
+              "@type": "PropertyValue",
+              propertyID: "Company Registration",
+              value: "2017/135433/07",
+            },
             { "@type": "PropertyValue", propertyID: "CSD Supplier", value: "MAAA0446751" },
             { "@type": "PropertyValue", propertyID: "B-BBEE Level", value: "1" },
           ],
