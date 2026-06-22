@@ -49,7 +49,7 @@ export const Route = createFileRoute("/projects/$slug")({
                 image: ogImage,
                 locationCreated: { "@type": "Place", name: p.location },
                 creator: { "@type": "Organization", name: "Sthololwazi Projects (Pty) Ltd" },
-                url: `/projects/${params.slug}`,
+                url: canonical,
               }),
             },
           ]
