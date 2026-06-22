@@ -10,6 +10,6 @@ Disallow: /*.xml$
 User-agent: Googlebot-Image
 Allow: /api/og/
 
-Sitemap: /sitemap.xml
-Sitemap: /sitemap-pages.xml
-Sitemap: /sitemap-projects.xml
+Sitemap: https://sthololwaziprojects.lovable.app/sitemap.xml
+Sitemap: https://sthololwaziprojects.lovable.app/sitemap-pages.xml
+Sitemap: https://sthololwaziprojects.lovable.app/sitemap-projects.xml

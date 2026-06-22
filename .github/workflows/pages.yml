@@ -36,6 +36,19 @@ jobs:
           if [ -f .output/public/index.html ] && [ ! -f .output/public/404.html ]; then
             cp .output/public/index.html .output/public/404.html
           fi
+      - name: Verify expected static outputs
+        run: |
+          set -e
+          for f in index.html 404.html sitemap.xml sitemap-pages.xml sitemap-projects.xml robots.txt; do
+            if [ ! -f ".output/public/$f" ]; then
+              echo "::error::Missing expected static output: $f"
+              exit 1
+            fi
+          done
+          if [ ! -d .output/public/api/og/projects ] || [ -z "$(ls -A .output/public/api/og/projects 2>/dev/null)" ]; then
+            echo "::error::Missing prerendered OG SVGs in /api/og/projects/"
+            exit 1
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .output/public

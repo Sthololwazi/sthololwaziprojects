@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { services } from "@/data/services";
+import { SITE_URL } from "@/lib/site";
 
 interface Entry {
   path: string;
@@ -11,8 +12,8 @@ interface Entry {
 export const Route = createFileRoute("/sitemap-pages.xml")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
-        const origin = new URL(request.url).origin;
+      GET: async () => {
+        const origin = SITE_URL;
         const entries: Entry[] = [
           { path: "/", priority: "1.0", changefreq: "weekly" },
           { path: "/about", priority: "0.8", changefreq: "monthly" },

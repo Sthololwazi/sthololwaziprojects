@@ -1,0 +1,74 @@
+name: PR preview (static GH Pages build)
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pages-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build-preview:
+    name: Build static mirror for PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Build static mirror
+        env:
+          GH_PAGES: "1"
+        run: bun run build
+      - name: GitHub Pages housekeeping
+        run: |
+          touch .output/public/.nojekyll
+          if [ -f .output/public/index.html ] && [ ! -f .output/public/404.html ]; then
+            cp .output/public/index.html .output/public/404.html
+          fi
+      - name: Verify expected static outputs
+        run: |
+          set -e
+          echo "Listing top-level static outputs:"
+          ls -la .output/public
+          for f in index.html 404.html sitemap.xml sitemap-pages.xml sitemap-projects.xml robots.txt; do
+            if [ ! -f ".output/public/$f" ]; then
+              echo "::error::Missing expected static output: $f"
+              exit 1
+            fi
+          done
+          echo "OG SVGs:"
+          ls -la .output/public/api/og/projects || (echo "::error::Missing OG SVG output dir" && exit 1)
+      - name: Upload PR preview artifact
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-${{ github.event.pull_request.number }}-static-mirror
+          path: .output/public
+          if-no-files-found: error
+          retention-days: 14
+      - name: Comment preview link on PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pages-preview
+          message: |
+            ### Static GH Pages mirror — preview build
+
+            Build succeeded for commit `${{ github.event.pull_request.head.sha }}`.
+
+            Download the static site to inspect it locally:
+            **[Artifact: pr-${{ github.event.pull_request.number }}-static-mirror](${{ steps.upload.outputs.artifact-url }})**
+
+            ```bash
+            unzip pr-${{ github.event.pull_request.number }}-static-mirror.zip -d preview
+            npx --yes serve preview
+            ```
+
+            Verified static outputs: `index.html`, `404.html`, `sitemap*.xml`, `robots.txt`, `/api/og/projects/*.svg`.
+            On merge to `main`, the deploy workflow publishes the same output to GitHub Pages.
