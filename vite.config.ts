@@ -48,7 +48,6 @@ export default defineConfig({
             failOnError: false,
             routes: [...htmlRoutes, ...assetRoutes],
           },
-          
         },
       }
     : {}),
