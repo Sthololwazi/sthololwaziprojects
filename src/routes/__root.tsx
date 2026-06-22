@@ -138,10 +138,40 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+// Inline pre-hydration script. Runs before React mounts on every page —
+// including the SPA fallback 404.html on GitHub Pages — to:
+//   1. Upgrade http:// → https:// (defence-in-depth; GH Pages also enforces).
+//   2. Redirect the GitHub Pages mirror to the canonical Lovable host so old
+//      links keep working when the mirror is the entry point.
+//   3. Strip trailing slashes (except "/") for canonical URLs.
+const CLIENT_REDIRECTS = `
+(function(){try{
+  var loc = window.location;
+  var canonicalHost = "sthololwaziprojects.lovable.app";
+  // 1. HTTPS upgrade
+  if (loc.protocol === "http:" && loc.hostname !== "localhost" && !/^127\\./.test(loc.hostname)) {
+    loc.replace("https:" + loc.href.substring(loc.protocol.length));
+    return;
+  }
+  // 2. GitHub Pages mirror -> canonical host
+  if (/\\.github\\.io$/.test(loc.hostname)) {
+    var path = loc.pathname.replace(/^\\/sthololwazi(\\/|$)/, "/");
+    loc.replace("https://" + canonicalHost + path + loc.search + loc.hash);
+    return;
+  }
+  // 3. Trailing-slash normalisation
+  if (loc.pathname.length > 1 && loc.pathname.endsWith("/")) {
+    var clean = loc.pathname.replace(/\\/+$/, "");
+    history.replaceState(null, "", clean + loc.search + loc.hash);
+  }
+}catch(e){}})();
+`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: CLIENT_REDIRECTS }} />
         <HeadContent />
       </head>
       <body>
