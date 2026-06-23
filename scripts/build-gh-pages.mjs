@@ -28,13 +28,7 @@ const DIST_SERVER = path.join(ROOT, "dist", "server", "index.mjs");
 const OUT = path.join(ROOT, ".output", "public");
 const SITE_URL = "https://sthololwaziprojects.lovable.app";
 
-const HTML_ROUTES = [
-  "/",
-  "/about",
-  "/services",
-  "/projects",
-  "/contact",
-];
+const HTML_ROUTES = ["/", "/about", "/services", "/projects", "/contact"];
 
 function log(msg) {
   console.log(`[gh-pages] ${msg}`);
@@ -44,9 +38,7 @@ async function exec(cmd, args) {
   log(`$ ${cmd} ${args.join(" ")}`);
   await new Promise((resolve, reject) => {
     const p = spawn(cmd, args, { stdio: "inherit", env: process.env });
-    p.on("exit", (code) =>
-      code === 0 ? resolve() : reject(new Error(`${cmd} exited ${code}`)),
-    );
+    p.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`${cmd} exited ${code}`))));
   });
 }
 
@@ -79,14 +71,11 @@ async function main() {
   await copyDir(DIST_CLIENT, OUT);
 
   // 3a. Shared helpers (TS, loaded directly by Bun).
-  const { renderSitemapIndex, renderPagesSitemap, renderProjectsSitemap } =
-    await import(pathToFileURL(path.join(ROOT, "src/lib/sitemaps.ts")).href);
-  const { renderProjectOgSvg } = await import(
-    pathToFileURL(path.join(ROOT, "src/lib/og.ts")).href
+  const { renderSitemapIndex, renderPagesSitemap, renderProjectsSitemap } = await import(
+    pathToFileURL(path.join(ROOT, "src/lib/sitemaps.ts")).href
   );
-  const { projects } = await import(
-    pathToFileURL(path.join(ROOT, "src/data/projects.ts")).href
-  );
+  const { renderProjectOgSvg } = await import(pathToFileURL(path.join(ROOT, "src/lib/og.ts")).href);
+  const { projects } = await import(pathToFileURL(path.join(ROOT, "src/data/projects.ts")).href);
   const { serviceSlugs, projectSlugs } = await import(
     pathToFileURL(path.join(ROOT, "src/data/slugs.ts")).href
   );
@@ -131,8 +120,7 @@ async function main() {
       continue;
     }
     const html = await res.text();
-    const out =
-      route === "/" ? "index.html" : path.join(route.replace(/^\//, ""), "index.html");
+    const out = route === "/" ? "index.html" : path.join(route.replace(/^\//, ""), "index.html");
     await writeFile(out, html);
   }
 
