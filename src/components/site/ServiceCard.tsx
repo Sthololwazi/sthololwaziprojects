@@ -34,9 +34,7 @@ export function ServiceCard({
       onMouseLeave={() => onHoverChange?.(false)}
     >
       <div className="flex items-baseline justify-between">
-        <div className="font-mono text-xs text-gold tracking-widest">
-          {number} · DIVISION
-        </div>
+        <div className="font-mono text-xs text-gold tracking-widest">{number} · DIVISION</div>
         <div className="font-display text-5xl font-light text-white/15 group-hover:text-gold/40 transition-colors">
           {number}
         </div>

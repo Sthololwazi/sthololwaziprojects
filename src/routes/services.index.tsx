@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
+import { SITE_URL } from "@/lib/site";
 import civil from "@/assets/service-civil.jpg";
 import supply from "@/assets/service-supply.jpg";
 import craft from "@/assets/craft-bricks.jpg";
 
-export const Route = createFileRoute("/services")({
+export const Route = createFileRoute("/services/")({
   head: () => ({
     meta: [
       { title: "Services — Civil, Building & Material Supply · Sthololwazi Projects" },
@@ -19,17 +20,17 @@ export const Route = createFileRoute("/services")({
         content: "Three integrated divisions, one accountable partner.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/services" },
-      { property: "og:image", content: civil },
+      { property: "og:url", content: `${SITE_URL}/services` },
+      { property: "og:image", content: `${SITE_URL}${civil}` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Services — Sthololwazi Projects" },
       {
         name: "twitter:description",
         content: "Civil, building and material supply across Mpumalanga.",
       },
-      { name: "twitter:image", content: civil },
+      { name: "twitter:image", content: `${SITE_URL}${civil}` },
     ],
-    links: [{ rel: "canonical", href: "/services" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/services` }],
     scripts: [
       {
         type: "application/ld+json",
@@ -39,7 +40,7 @@ export const Route = createFileRoute("/services")({
           serviceType: "Civil & Building Construction",
           provider: { "@type": "Organization", name: "Sthololwazi Projects (Pty) Ltd" },
           areaServed: { "@type": "AdministrativeArea", name: "Mpumalanga, South Africa" },
-          url: "/services",
+          url: `${SITE_URL}/services`,
         }),
       },
     ],

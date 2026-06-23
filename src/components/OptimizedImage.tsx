@@ -6,8 +6,7 @@
 import { ImgHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-interface OptimizedImageProps
-  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "loading"> {
+interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "loading"> {
   width: number;
   height: number;
   aspectRatio?: "video" | "square" | "4/5" | "3/4" | "custom";
@@ -42,12 +41,7 @@ export function OptimizedImage({
       width={width}
       height={height}
       alt={alt}
-      className={cn(
-        "w-full",
-        aspectClasses[aspectRatio],
-        variantClasses[variant],
-        className,
-      )}
+      className={cn("w-full", aspectClasses[aspectRatio], variantClasses[variant], className)}
       {...props}
     />
   );

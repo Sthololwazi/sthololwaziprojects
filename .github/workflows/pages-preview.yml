@@ -23,12 +23,9 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - name: Build static mirror
-        env:
-          GH_PAGES: "1"
-        run: bun run build
+        run: bun run build:gh-pages
       - name: GitHub Pages housekeeping
         run: |
-          touch .output/public/.nojekyll
           if [ -f .output/public/index.html ] && [ ! -f .output/public/404.html ]; then
             cp .output/public/index.html .output/public/404.html
           fi

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
+import { SITE_URL } from "@/lib/site";
 import logo from "@/assets/logo.png.asset.json";
 import hero from "@/assets/hero-construction.jpg";
 import craft from "@/assets/craft-bricks.jpg";
@@ -23,17 +24,17 @@ export const Route = createFileRoute("/")({
         content: "Building infrastructure. Empowering communities. Mending the future.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
-      { property: "og:image", content: hero },
+      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: `${SITE_URL}${hero}` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Sthololwazi Projects — Civil & Building Construction" },
       {
         name: "twitter:description",
         content: "100% black-owned, B-BBEE Level 1 contractor in Mpumalanga.",
       },
-      { name: "twitter:image", content: hero },
+      { name: "twitter:image", content: `${SITE_URL}${hero}` },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
     scripts: [
       {
         type: "application/ld+json",
@@ -41,7 +42,7 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "Sthololwazi Projects",
-          url: "/",
+          url: `${SITE_URL}/`,
         }),
       },
     ],

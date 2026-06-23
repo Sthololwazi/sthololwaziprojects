@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/Layout";
 import { getService, services, type ServiceDetail } from "@/data/services";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/services/$slug")({
   loader: ({ params }) => {
@@ -13,6 +14,8 @@ export const Route = createFileRoute("/services/$slug")({
     const s = loaderData;
     const title = s ? `${s.title} — Sthololwazi Projects` : "Service — Sthololwazi Projects";
     const desc = s?.intro ?? "Construction service by Sthololwazi Projects.";
+    const canonical = `${SITE_URL}/services/${params.slug}`;
+    const ogImage = s ? `${SITE_URL}${s.image}` : undefined;
     return {
       meta: [
         { title },
@@ -20,14 +23,14 @@ export const Route = createFileRoute("/services/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "website" },
-        { property: "og:url", content: `/services/${params.slug}` },
-        ...(s ? [{ property: "og:image", content: s.image }] : []),
+        { property: "og:url", content: canonical },
+        ...(ogImage ? [{ property: "og:image", content: ogImage }] : []),
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
-        ...(s ? [{ name: "twitter:image", content: s.image }] : []),
+        ...(ogImage ? [{ name: "twitter:image", content: ogImage }] : []),
       ],
-      links: [{ rel: "canonical", href: `/services/${params.slug}` }],
+      links: [{ rel: "canonical", href: canonical }],
       scripts: s
         ? [
             {
@@ -40,7 +43,7 @@ export const Route = createFileRoute("/services/$slug")({
                 serviceType: s.title,
                 provider: { "@type": "Organization", name: "Sthololwazi Projects (Pty) Ltd" },
                 areaServed: { "@type": "AdministrativeArea", name: "Mpumalanga, South Africa" },
-                url: `/services/${params.slug}`,
+                url: canonical,
               }),
             },
           ]

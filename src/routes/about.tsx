@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
+import { SITE_URL } from "@/lib/site";
 import foreman from "@/assets/team-foreman.jpg";
 import craft from "@/assets/craft-bricks.jpg";
 
@@ -18,14 +19,14 @@ export const Route = createFileRoute("/about")({
         content: "An infrastructure and social development partner, not just a contractor.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/about" },
-      { property: "og:image", content: foreman },
+      { property: "og:url", content: `${SITE_URL}/about` },
+      { property: "og:image", content: `${SITE_URL}${foreman}` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "About — Sthololwazi Projects" },
       { name: "twitter:description", content: "An infrastructure and social development partner." },
-      { name: "twitter:image", content: foreman },
+      { name: "twitter:image", content: `${SITE_URL}${foreman}` },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/about` }],
     scripts: [
       {
         type: "application/ld+json",
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/about")({
           "@context": "https://schema.org",
           "@type": "AboutPage",
           name: "About — Sthololwazi Projects",
-          url: "/about",
+          url: `${SITE_URL}/about`,
         }),
       },
     ],

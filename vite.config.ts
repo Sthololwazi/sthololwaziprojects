@@ -4,61 +4,11 @@
 // and sandbox detection. Do not add those plugins manually.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// IMPORTANT: vite.config.ts is loaded by Node directly (not through Vite's
-// resolver), so we can only import plain modules with no `@/...` aliases or
-// asset imports. `slugs.ts` is the safe enumeration of dynamic route params.
-import { projectSlugs, serviceSlugs } from "./src/data/slugs";
-
-// GH Pages static mirror: built in CI with GH_PAGES=1 and served under
-// https://<user>.github.io/sthololwazi/. The Lovable SSR build leaves base "/"
-// and uses the wrapper's default Cloudflare nitro preset.
-const isGhPages = process.env.GH_PAGES === "1";
-const ghPagesBase = "/";
-
-const htmlRoutes = [
-  "/",
-  "/home",
-  "/about",
-  "/services",
-  "/projects",
-  "/contact",
-  ...serviceSlugs.map((s) => `/services/${s}`),
-  ...projectSlugs.map((s) => `/projects/${s}`),
-];
-
-const assetRoutes = [
-  "/sitemap.xml",
-  "/sitemap-pages.xml",
-  "/sitemap-projects.xml",
-  "/robots.txt",
-  ...projectSlugs.map((s) => `/api/og/projects/${s}.svg`),
-];
-
-export default defineConfig({
-  vite: {
-    base: isGhPages ? ghPagesBase : "/",
-  },
-  ...(isGhPages
-    ? {
-        // Fully static build for GitHub Pages — emits .output/public/ with
-        // pre-rendered HTML for every route below.
-        nitro: { 
-          preset: "static",
-          publicAssets: [
-            {
-              dir: "./public",
-              maxAge: 60 * 60 * 24 * 365, // 1 year
-            }
-          ]
-        },
-        tanstackStart: {
-          prerender: {
-            enabled: true,
-            crawlLinks: true,
-            failOnError: false,
-            routes: [...htmlRoutes, ...assetRoutes],
-          },
-        },
-      }
-    : {}),
-});
+// The GitHub Pages mirror is produced by `scripts/build-gh-pages.mjs`
+// AFTER a normal Cloudflare build. We do not run nitro's static preset:
+// it breaks on a stray SSR-build step (`rollupOptions.input should not be
+// an html file when building for SSR`) and only ever prerenders `/`.
+// Keeping the default Lovable build pipeline here means SSR on the Lovable
+// host stays intact, and the script in `scripts/` repackages `dist/` into
+// `.output/public/` with prerendered HTML, sitemaps, and OG SVGs for GH Pages.
+export default defineConfig({});

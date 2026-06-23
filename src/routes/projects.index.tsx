@@ -3,9 +3,10 @@ import { useMemo, useState } from "react";
 import { SiteLayout } from "@/components/site/Layout";
 import { LogoWatermark } from "@/components/site/LogoWatermark";
 import { projects, categories, type ProjectCategory } from "@/data/projects";
+import { SITE_URL } from "@/lib/site";
 import rdp from "@/assets/project-rdp.jpg";
 
-export const Route = createFileRoute("/projects")({
+export const Route = createFileRoute("/projects/")({
   head: () => ({
     meta: [
       { title: "Projects — Sthololwazi Projects · Track Record" },
@@ -20,17 +21,17 @@ export const Route = createFileRoute("/projects")({
         content: "Community infrastructure, healthcare facilities and national housing delivery.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/projects" },
-      { property: "og:image", content: rdp },
+      { property: "og:url", content: `${SITE_URL}/projects` },
+      { property: "og:image", content: `${SITE_URL}${rdp}` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Projects — Sthololwazi Projects" },
       {
         name: "twitter:description",
         content: "A portfolio measured in homes built and lives changed.",
       },
-      { name: "twitter:image", content: rdp },
+      { name: "twitter:image", content: `${SITE_URL}${rdp}` },
     ],
-    links: [{ rel: "canonical", href: "/projects" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/projects` }],
     scripts: [
       {
         type: "application/ld+json",
@@ -38,11 +39,11 @@ export const Route = createFileRoute("/projects")({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "Sthololwazi Projects portfolio",
-          url: "/projects",
+          url: `${SITE_URL}/projects`,
           hasPart: projects.map((p) => ({
             "@type": "CreativeWork",
             name: p.name,
-            url: `/projects/${p.slug}`,
+            url: `${SITE_URL}/projects/${p.slug}`,
           })),
         }),
       },

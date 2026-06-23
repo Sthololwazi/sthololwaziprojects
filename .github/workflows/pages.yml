@@ -25,14 +25,11 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - name: Build static mirror
-        env:
-          GH_PAGES: "1"
-        run: bun run build
+        run: bun run build:gh-pages
       - name: GitHub Pages housekeeping
         run: |
-          # Disable Jekyll so paths starting with _ (e.g. _build assets) are served.
-          touch .output/public/.nojekyll
-          # SPA-style fallback for unknown URLs so client-side router can take over.
+          # SPA-style fallback for unknown URLs (the script already copies index→404,
+          # but keep this guard in case the source pipeline ever stops doing so).
           if [ -f .output/public/index.html ] && [ ! -f .output/public/404.html ]; then
             cp .output/public/index.html .output/public/404.html
           fi
