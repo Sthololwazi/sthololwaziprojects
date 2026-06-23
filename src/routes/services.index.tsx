@@ -4,7 +4,7 @@ import civil from "@/assets/service-civil.jpg";
 import supply from "@/assets/service-supply.jpg";
 import craft from "@/assets/craft-bricks.jpg";
 
-export const Route = createFileRoute("/services")({
+export const Route = createFileRoute("/services/")({
   head: () => ({
     meta: [
       { title: "Services — Civil, Building & Material Supply · Sthololwazi Projects" },

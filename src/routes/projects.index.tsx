@@ -5,7 +5,7 @@ import { LogoWatermark } from "@/components/site/LogoWatermark";
 import { projects, categories, type ProjectCategory } from "@/data/projects";
 import rdp from "@/assets/project-rdp.jpg";
 
-export const Route = createFileRoute("/projects")({
+export const Route = createFileRoute("/projects/")({
   head: () => ({
     meta: [
       { title: "Projects — Sthololwazi Projects · Track Record" },
