@@ -41,16 +41,19 @@ export default defineConfig({
   ...(isGhPages
     ? {
         // Fully static build for GitHub Pages — emits .output/public/ with
-        // pre-rendered HTML for every route below.
+        // pre-rendered HTML for every route below. The `pages` list is what
+        // TanStack Start hands to nitro's prerenderer; `prerender.routes` is
+        // NOT a real schema field. The robots.txt is served from /public so
+        // it doesn't need to be listed.
         nitro: {
           preset: "static",
         },
         tanstackStart: {
+          pages: [...htmlRoutes, ...assetRoutes].map((path) => ({ path })),
           prerender: {
             enabled: true,
             crawlLinks: true,
             failOnError: false,
-            routes: [...htmlRoutes, ...assetRoutes],
           },
         },
       }
