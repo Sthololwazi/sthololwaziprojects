@@ -6,7 +6,10 @@ export const Route = createFileRoute("/api/og/projects/$slug")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const p = getProject(params.slug) ?? {
+        // Crawlers fetch this as `/api/og/projects/<slug>.svg` so the asset
+        // looks like a real image file — strip the extension before lookup.
+        const slug = params.slug.replace(/\.svg$/i, "");
+        const p = getProject(slug) ?? {
           name: "Sthololwazi Projects",
           category: "Construction",
           year: "Mpumalanga",
