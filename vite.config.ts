@@ -42,14 +42,8 @@ export default defineConfig({
     ? {
         // Fully static build for GitHub Pages — emits .output/public/ with
         // pre-rendered HTML for every route below.
-        nitro: { 
+        nitro: {
           preset: "static",
-          publicAssets: [
-            {
-              dir: "./public",
-              maxAge: 60 * 60 * 24 * 365, // 1 year
-            }
-          ]
         },
         tanstackStart: {
           prerender: {
