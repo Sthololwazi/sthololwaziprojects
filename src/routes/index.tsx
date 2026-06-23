@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
+import { SITE_URL } from "@/lib/site";
 import logo from "@/assets/logo.png.asset.json";
 import hero from "@/assets/hero-construction.jpg";
 import craft from "@/assets/craft-bricks.jpg";
