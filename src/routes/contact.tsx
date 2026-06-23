@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/Layout";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -17,12 +18,12 @@ export const Route = createFileRoute("/contact")({
         content: "Mbombela, Mpumalanga · 064 620 4247 · projectssthololwazi@gmail.com",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/contact" },
+      { property: "og:url", content: `${SITE_URL}/contact` },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Contact — Sthololwazi Projects" },
       { name: "twitter:description", content: "Mbombela, Mpumalanga · 064 620 4247" },
     ],
-    links: [{ rel: "canonical", href: "/contact" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/contact` }],
     scripts: [
       {
         type: "application/ld+json",
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/contact")({
           "@context": "https://schema.org",
           "@type": "ContactPage",
           name: "Contact Sthololwazi Projects",
-          url: "/contact",
+          url: `${SITE_URL}/contact`,
         }),
       },
     ],
