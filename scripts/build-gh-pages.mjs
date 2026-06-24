@@ -147,7 +147,114 @@ async function main() {
   // 9. Verify required static files exist and reference SITE_URL where applicable.
   await verifyRequiredFiles();
 
+  // 10. Internal link checker: every href/src in rendered HTML must resolve.
+  await verifyInternalLinks();
+
   log("done.");
+}
+
+async function firstExisting(candidates) {
+  for (const c of candidates) {
+    try {
+      const st = await fs.stat(path.join(OUT, c));
+      if (st.isFile()) return c;
+    } catch {
+      /* try next */
+    }
+  }
+  return null;
+}
+
+async function verifyInternalLinks() {
+  const htmlFiles = [];
+  async function walk(dir, prefix = "") {
+    for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (!prefix && ["_build", "_server"].includes(entry.name)) continue;
+        await walk(full, rel);
+      } else if (entry.name.endsWith(".html")) {
+        htmlFiles.push(rel);
+      }
+    }
+  }
+  await walk(OUT);
+
+  const errors = [];
+  let totalRefs = 0;
+  const ATTR_RE = /\b(href|src|srcset)\s*=\s*("([^"]*)"|'([^']*)')/gi;
+
+  function resolveCandidates(target) {
+    const clean = target.split("#")[0].split("?")[0];
+    if (!clean) return null;
+    let p = clean;
+    try {
+      p = decodeURI(clean);
+    } catch {
+      /* keep raw */
+    }
+    if (p.startsWith("/")) p = p.slice(1);
+    if (!p) return ["index.html"];
+    const candidates = [p];
+    if (!/\.[a-z0-9]+$/i.test(p)) {
+      candidates.push(`${p}/index.html`, `${p}.html`);
+    }
+    return candidates;
+  }
+
+  async function check(file, attrName, raw) {
+    const targets =
+      attrName.toLowerCase() === "srcset"
+        ? raw.split(",").map((s) => s.trim().split(/\s+/)[0])
+        : [raw.trim()];
+    for (const t of targets) {
+      if (!t) continue;
+      // External, protocol-relative, anchor, mailto/tel/data/javascript.
+      if (t.startsWith("#") || t.startsWith("//")) continue;
+      if (/^[a-z][a-z0-9+.-]*:/i.test(t)) {
+        if (t === SITE_URL || t.startsWith(`${SITE_URL}/`)) {
+          const internal = t.slice(SITE_URL.length) || "/";
+          totalRefs++;
+          const cands = resolveCandidates(internal);
+          if (!cands) continue;
+          if (!(await firstExisting(cands))) {
+            errors.push(`${file}: dead link ${t} (tried ${cands.join(", ")})`);
+          }
+        }
+        continue;
+      }
+      totalRefs++;
+      let resolved;
+      if (t.startsWith("/")) {
+        resolved = t;
+      } else {
+        const baseDir = path.posix.dirname("/" + file);
+        resolved = path.posix.normalize(path.posix.join(baseDir, t));
+      }
+      const cands = resolveCandidates(resolved);
+      if (!cands) continue;
+      if (!(await firstExisting(cands))) {
+        errors.push(`${file}: dead link ${t} (tried ${cands.join(", ")})`);
+      }
+    }
+  }
+
+  for (const file of htmlFiles) {
+    const html = await fs.readFile(path.join(OUT, file), "utf8");
+    for (const m of html.matchAll(ATTR_RE)) {
+      const attr = m[1];
+      const raw = m[3] ?? m[4] ?? "";
+      if (!raw) continue;
+      await check(file, attr, raw);
+    }
+  }
+
+  if (errors.length) {
+    for (const e of errors) console.error(`[gh-pages] LINK CHECK FAIL — ${e}`);
+    throw new Error(`Internal link check failed (${errors.length} dead link(s))`);
+  }
+  log(`internal link check passed (${htmlFiles.length} HTML files, ${totalRefs} refs)`);
 }
 
 async function verifySitemaps() {
