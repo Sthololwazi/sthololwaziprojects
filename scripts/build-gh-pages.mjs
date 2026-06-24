@@ -131,7 +131,54 @@ async function main() {
   // 6. Jekyll opt-out.
   await fs.writeFile(path.join(OUT, ".nojekyll"), "");
 
+  // 7. Verify every sitemap <loc> uses SITE_URL and resolves to a real
+  //    file on the mirror (rendered index.html for HTML routes, the asset
+  //    file for things like /api/og/projects/<slug>.svg).
+  await verifySitemaps();
+
   log("done.");
+}
+
+async function verifySitemaps() {
+  const sitemaps = ["sitemap.xml", "sitemap-pages.xml", "sitemap-projects.xml"];
+  const errors = [];
+  for (const name of sitemaps) {
+    const xml = await fs.readFile(path.join(OUT, name), "utf8");
+    const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].trim());
+    const imgs = [...xml.matchAll(/<image:loc>([^<]+)<\/image:loc>/g)].map((m) => m[1].trim());
+    if (locs.length === 0) errors.push(`${name}: no <loc> entries found`);
+    for (const loc of [...locs, ...imgs]) {
+      if (loc !== SITE_URL && !loc.startsWith(`${SITE_URL}/`)) {
+        errors.push(`${name}: <loc> not on SITE_URL (${SITE_URL}): ${loc}`);
+        continue;
+      }
+      const pathPart = loc.slice(SITE_URL.length) || "/";
+      // Nested sitemap or any asset with an extension → file must exist.
+      if (/\.[a-z0-9]+$/i.test(pathPart)) {
+        const rel = pathPart.replace(/^\//, "");
+        try {
+          await fs.access(path.join(OUT, rel));
+        } catch {
+          errors.push(`${name}: missing on disk for ${loc} (expected ${rel})`);
+        }
+        continue;
+      }
+      // HTML route → rendered index.html must exist.
+      const rel =
+        pathPart === "/" ? "index.html" : path.join(pathPart.replace(/^\//, ""), "index.html");
+      try {
+        await fs.access(path.join(OUT, rel));
+      } catch {
+        errors.push(`${name}: no rendered HTML for ${loc} (expected ${rel})`);
+      }
+    }
+    log(`verified ${name} (${locs.length} <loc>, ${imgs.length} <image:loc>)`);
+  }
+  if (errors.length) {
+    for (const e of errors) console.error(`[gh-pages] SITEMAP CHECK FAIL — ${e}`);
+    throw new Error(`Sitemap verification failed (${errors.length} issue(s))`);
+  }
+  log("sitemap verification passed");
 }
 
 main().catch((err) => {
