@@ -103,6 +103,8 @@ async function main() {
     ...projectSlugs.map((s) => `/projects/${s}`),
   ];
 
+  const renderedRoutes = new Set();
+  const failedRoutes = [];
   for (const route of allRoutes) {
     const req = new Request(`${SITE_URL}${route}`, {
       method: "GET",
@@ -113,15 +115,18 @@ async function main() {
       res = await worker.fetch(req, {}, { waitUntil() {}, passThroughOnException() {} });
     } catch (err) {
       console.warn(`[gh-pages] SSR failed for ${route}: ${err?.message ?? err}`);
+      failedRoutes.push(`${route} (threw: ${err?.message ?? err})`);
       continue;
     }
     if (!res || res.status >= 400) {
       console.warn(`[gh-pages] ${route} → status ${res?.status}`);
+      failedRoutes.push(`${route} (status ${res?.status})`);
       continue;
     }
     const html = await res.text();
     const out = route === "/" ? "index.html" : path.join(route.replace(/^\//, ""), "index.html");
     await writeFile(out, html);
+    renderedRoutes.add(route);
   }
 
   // 5. SPA fallback so deep links survive on GitHub Pages.
@@ -135,6 +140,12 @@ async function main() {
   //    file on the mirror (rendered index.html for HTML routes, the asset
   //    file for things like /api/og/projects/<slug>.svg).
   await verifySitemaps();
+
+  // 8. Compare prerendered routes ↔ sitemap-pages.xml ↔ mirror filesystem.
+  await verifyRouteCoverage(allRoutes, renderedRoutes, failedRoutes);
+
+  // 9. Verify required static files exist and reference SITE_URL where applicable.
+  await verifyRequiredFiles();
 
   log("done.");
 }
