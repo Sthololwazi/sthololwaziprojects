@@ -164,23 +164,50 @@ async function verifySitemaps() {
         continue;
       }
       const pathPart = loc.slice(SITE_URL.length) || "/";
-      // Nested sitemap or any asset with an extension → file must exist.
-      if (/\.[a-z0-9]+$/i.test(pathPart)) {
+      const extMatch = pathPart.match(/\.([a-z0-9]+)$/i);
+      if (extMatch) {
+        const ext = extMatch[1].toLowerCase();
         const rel = pathPart.replace(/^\//, "");
+        const full = path.join(OUT, rel);
+        let body;
         try {
-          await fs.access(path.join(OUT, rel));
+          body = await fs.readFile(full);
         } catch {
           errors.push(`${name}: missing on disk for ${loc} (expected ${rel})`);
+          continue;
         }
+        const head = body.slice(0, 512).toString("utf8").trimStart();
+        if (ext === "svg") {
+          if (!head.startsWith("<?xml") && !head.startsWith("<svg")) {
+            errors.push(`${name}: ${rel} is not an SVG (loc=${loc})`);
+          } else if (!head.includes("<svg")) {
+            errors.push(`${name}: ${rel} missing <svg> root (loc=${loc})`);
+          }
+        } else if (ext === "xml") {
+          if (!head.startsWith("<?xml") && !head.startsWith("<")) {
+            errors.push(`${name}: ${rel} is not XML (loc=${loc})`);
+          }
+        } else if (ext === "html" || ext === "htm") {
+          if (!/<html[\s>]/i.test(head)) {
+            errors.push(`${name}: ${rel} is not HTML (loc=${loc})`);
+          }
+        }
+        // Unknown extensions: existence check above is sufficient.
         continue;
       }
-      // HTML route → rendered index.html must exist.
+      // No extension → HTML route. Rendered index.html must exist and look like HTML.
       const rel =
         pathPart === "/" ? "index.html" : path.join(pathPart.replace(/^\//, ""), "index.html");
+      const full = path.join(OUT, rel);
+      let body;
       try {
-        await fs.access(path.join(OUT, rel));
+        body = await fs.readFile(full, "utf8");
       } catch {
         errors.push(`${name}: no rendered HTML for ${loc} (expected ${rel})`);
+        continue;
+      }
+      if (!/<html[\s>]/i.test(body.slice(0, 1024))) {
+        errors.push(`${name}: ${rel} does not look like HTML (loc=${loc})`);
       }
     }
     log(`verified ${name} (${locs.length} <loc>, ${imgs.length} <image:loc>)`);
