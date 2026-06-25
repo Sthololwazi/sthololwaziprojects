@@ -401,6 +401,22 @@ async function verifyRouteCoverage(expectedRoutes, renderedRoutes, failedRoutes)
   log(`route coverage passed (${expected.size} routes ↔ sitemap ↔ mirror)`);
 }
 
+function isAllowedSiteUrl(rawUrl) {
+  try {
+    const expectedOrigin = new URL(SITE_URL).origin;
+    const parsed = new URL(rawUrl);
+    return parsed.origin === expectedOrigin;
+  } catch {
+    return false;
+  }
+}
+
+function htmlReferencesSiteUrl(html) {
+  const absoluteUrlRegex = /\bhttps?:\/\/[^\s"'<>]+/gi;
+  const candidates = html.match(absoluteUrlRegex) ?? [];
+  return candidates.some((u) => isAllowedSiteUrl(u));
+}
+
 async function verifyRequiredFiles() {
   const errors = [];
   const required = ["index.html", "404.html", "robots.txt"];
@@ -416,7 +432,7 @@ async function verifyRequiredFiles() {
   for (const f of ["index.html", "404.html"]) {
     try {
       const html = await fs.readFile(path.join(OUT, f), "utf8");
-      if (!html.includes(SITE_URL)) {
+      if (!htmlReferencesSiteUrl(html)) {
         errors.push(`${f} does not reference SITE_URL (${SITE_URL})`);
       }
     } catch {
@@ -433,7 +449,7 @@ async function verifyRequiredFiles() {
     } else {
       for (const line of sitemapLines) {
         const url = line.replace(/^\s*Sitemap:\s*/i, "").trim();
-        if (!url.startsWith(`${SITE_URL}/`)) {
+        if (!isAllowedSiteUrl(url)) {
           errors.push(`robots.txt Sitemap: directive not on SITE_URL: ${url}`);
         }
       }
