@@ -1,0 +1,133 @@
+name: Deploy Static Mirror to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+env:
+  SITE_URL: "https://sthololwaziprojects.lovable.app"
+  GH_PAGES_URL: "https://sthololwazi.github.io"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper versioning
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          bun install --frozen-lockfile
+          # Ensure all required packages are installed
+          bun add -d @types/node typescript
+      
+      - name: Build static mirror
+        id: build
+        run: |
+          bun run scripts/build-gh-pages.mjs
+        env:
+          SITE_URL: ${{ env.SITE_URL }}
+          NODE_ENV: production
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .output/public
+      
+      - name: List output files (debug)
+        run: |
+          echo "=== Output directory contents ==="
+          ls -la .output/public/
+          echo "=== HTML files ==="
+          find .output/public -name "*.html" | head -20
+          echo "=== Asset files ==="
+          find .output/public/assets -type f 2>/dev/null | head -10 || echo "No assets directory"
+          echo "=== Sitemaps ==="
+          find .output/public -name "sitemap*.xml" 2>/dev/null || echo "No sitemaps found"
+      
+      - name: Validate build
+        id: validate
+        run: |
+          # Check critical files exist
+          if [ ! -f ".output/public/index.html" ]; then
+            echo "❌ index.html not found!"
+            exit 1
+          fi
+          if [ ! -f ".output/public/404.html" ]; then
+            echo "❌ 404.html not found!"
+            exit 1
+          fi
+          if [ ! -f ".output/public/.nojekyll" ]; then
+            echo "❌ .nojekyll not found!"
+            exit 1
+          fi
+          echo "✅ All critical files present"
+          
+          # Check size
+          SIZE=$(du -sh .output/public | cut -f1)
+          echo "Build size: $SIZE"
+          
+          # Count HTML files
+          HTML_COUNT=$(find .output/public -name "*.html" | wc -l)
+          echo "HTML files: $HTML_COUNT"
+          
+          # Check sitemaps
+          if [ -f ".output/public/sitemap.xml" ]; then
+            echo "✅ Sitemap exists"
+          else
+            echo "⚠️ No sitemap.xml found"
+          fi
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    needs: build
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      
+      - name: Verify deployment
+        run: |
+          echo "Deployed to: ${{ steps.deployment.outputs.page_url }}"
+          # Give GH Pages a moment to update
+          sleep 10
+          
+          # Check if site is responding (optional)
+          # You could add a health check here
