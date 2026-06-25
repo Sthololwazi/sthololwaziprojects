@@ -13,7 +13,7 @@ export interface OgProjectInput {
 export const OG_FALLBACK: OgProjectInput = {
   name: "Sthololwazi Projects",
   category: "Construction",
-  year: "Mpumalanga",
+  year: "2017",
   location: "Building infrastructure. Empowering communities.",
 };
 
