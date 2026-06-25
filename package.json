@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
     "build:gh-pages": "bun run scripts/build-gh-pages.mjs",
     "deploy:gh-pages": "bun run build:gh-pages && gh-pages -d .output/public",
     "sync": "bun run build:gh-pages && bash .github/scripts/sync-status.sh",
