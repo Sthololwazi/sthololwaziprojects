@@ -148,6 +148,10 @@ async function main() {
     log("no repo-root CNAME found; skipping custom-domain binding");
   }
 
+  // 6c. Materialize Lovable CDN assets (/__l5e/...) referenced by rendered
+  //     HTML so the mirror is fully self-contained on GH Pages.
+  await materializeLovableAssets();
+
   // 7. Verify every sitemap <loc> uses SITE_URL and resolves to a real
   //    file on the mirror (rendered index.html for HTML routes, the asset
   //    file for things like /api/og/projects/<slug>.svg).
@@ -163,6 +167,37 @@ async function main() {
   await verifyInternalLinks();
 
   log("done.");
+}
+
+async function materializeLovableAssets() {
+  const LOVABLE_CDN = SITE_URL;
+  const urls = new Set();
+  async function walk(dir) {
+    for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) await walk(full);
+      else if (entry.name.endsWith(".html")) {
+        const html = await fs.readFile(full, "utf8");
+        for (const m of html.matchAll(/\/__l5e\/[A-Za-z0-9._\-\/]+/g)) urls.add(m[0]);
+      }
+    }
+  }
+  await walk(OUT);
+  if (!urls.size) return;
+  for (const u of urls) {
+    const dest = path.join(OUT, u.replace(/^\//, ""));
+    try {
+      await fs.access(dest);
+      continue;
+    } catch {
+      /* fetch */
+    }
+    const res = await fetch(`${LOVABLE_CDN}${u}`);
+    if (!res.ok) throw new Error(`failed to fetch ${u}: ${res.status}`);
+    await fs.mkdir(path.dirname(dest), { recursive: true });
+    await fs.writeFile(dest, Buffer.from(await res.arrayBuffer()));
+    log(`materialized ${u} (${res.headers.get("content-length") ?? "?"} bytes)`);
+  }
 }
 
 async function firstExisting(candidates) {
@@ -353,11 +388,12 @@ async function verifyRouteCoverage(expectedRoutes, renderedRoutes, failedRoutes)
     if (!expected.has(r)) errors.push(`unexpected rendered route: ${r}`);
   }
 
-  // Sitemap-pages.xml: HTML routes from the sitemap must match the
-  // prerendered set exactly (no missing pages, no orphaned URLs).
+  // Sitemaps (pages + projects): HTML routes from the sitemaps must match
+  // the prerendered set exactly (no missing pages, no orphaned URLs).
   const pagesXml = await fs.readFile(path.join(OUT, "sitemap-pages.xml"), "utf8");
+  const projectsXml = await fs.readFile(path.join(OUT, "sitemap-projects.xml"), "utf8");
   const sitemapRoutes = new Set(
-    [...pagesXml.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    [...pagesXml.matchAll(/<loc>([^<]+)<\/loc>/g), ...projectsXml.matchAll(/<loc>([^<]+)<\/loc>/g)]
       .map((m) => m[1].trim())
       .filter((u) => u === SITE_URL || u.startsWith(`${SITE_URL}/`))
       .map((u) => {
@@ -367,10 +403,10 @@ async function verifyRouteCoverage(expectedRoutes, renderedRoutes, failedRoutes)
       .filter((p) => !/\.[a-z0-9]+$/i.test(p)),
   );
   for (const r of expected) {
-    if (!sitemapRoutes.has(r)) errors.push(`route missing from sitemap-pages.xml: ${r}`);
+    if (!sitemapRoutes.has(r)) errors.push(`route missing from sitemaps: ${r}`);
   }
   for (const r of sitemapRoutes) {
-    if (!expected.has(r)) errors.push(`sitemap-pages.xml lists unrendered route: ${r}`);
+    if (!expected.has(r)) errors.push(`sitemaps list unrendered route: ${r}`);
   }
 
   // Mirror filesystem: every HTML route must have its index.html, and we
