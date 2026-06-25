@@ -353,11 +353,12 @@ async function verifyRouteCoverage(expectedRoutes, renderedRoutes, failedRoutes)
     if (!expected.has(r)) errors.push(`unexpected rendered route: ${r}`);
   }
 
-  // Sitemap-pages.xml: HTML routes from the sitemap must match the
-  // prerendered set exactly (no missing pages, no orphaned URLs).
+  // Sitemaps (pages + projects): HTML routes from the sitemaps must match
+  // the prerendered set exactly (no missing pages, no orphaned URLs).
   const pagesXml = await fs.readFile(path.join(OUT, "sitemap-pages.xml"), "utf8");
+  const projectsXml = await fs.readFile(path.join(OUT, "sitemap-projects.xml"), "utf8");
   const sitemapRoutes = new Set(
-    [...pagesXml.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    [...pagesXml.matchAll(/<loc>([^<]+)<\/loc>/g), ...projectsXml.matchAll(/<loc>([^<]+)<\/loc>/g)]
       .map((m) => m[1].trim())
       .filter((u) => u === SITE_URL || u.startsWith(`${SITE_URL}/`))
       .map((u) => {
@@ -367,10 +368,10 @@ async function verifyRouteCoverage(expectedRoutes, renderedRoutes, failedRoutes)
       .filter((p) => !/\.[a-z0-9]+$/i.test(p)),
   );
   for (const r of expected) {
-    if (!sitemapRoutes.has(r)) errors.push(`route missing from sitemap-pages.xml: ${r}`);
+    if (!sitemapRoutes.has(r)) errors.push(`route missing from sitemaps: ${r}`);
   }
   for (const r of sitemapRoutes) {
-    if (!expected.has(r)) errors.push(`sitemap-pages.xml lists unrendered route: ${r}`);
+    if (!expected.has(r)) errors.push(`sitemaps list unrendered route: ${r}`);
   }
 
   // Mirror filesystem: every HTML route must have its index.html, and we
