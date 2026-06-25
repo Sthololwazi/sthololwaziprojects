@@ -170,7 +170,7 @@ async function main() {
 }
 
 async function materializeLovableAssets() {
-  const LOVABLE_CDN = "https://lovable.dev";
+  const LOVABLE_CDN = SITE_URL;
   const urls = new Set();
   async function walk(dir) {
     for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
