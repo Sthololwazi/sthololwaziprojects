@@ -1,0 +1,29 @@
+{
+  "sourceUrl": "https://sthololwaziprojects.lovable.app",
+  "targetUrl": "https://sthololwazi.github.io",
+  "routes": [
+    "/",
+    "/about",
+    "/services",
+    "/projects",
+    "/contact"
+  ],
+  "assets": {
+    "patterns": [
+      "/__l5e/**",
+      "/assets/**",
+      "/fonts/**",
+      "/images/**"
+    ],
+    "exclude": [
+      "**/*.map",
+      "**/README.md"
+    ]
+  },
+  "verification": {
+    "requiredFiles": ["index.html", "404.html", ".nojekyll", "robots.txt"],
+    "sitemaps": true,
+    "ogImages": true,
+    "linkCheck": true
+  }
+}
