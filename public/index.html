@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sthololwazi Projects — Civil & Building Construction · Mpumalanga</title>
+  <meta name="description" content="Sthololwazi Projects is a 100% black-owned, B-BBEE Level 1 civil and building construction company in Mbombela. Building infrastructure. Empowering communities." />
+
+  <!-- Open Graph / Social Meta Tags -->
+  <meta property="og:title" content="Sthololwazi Projects — Civil & Building Construction" />
+  <meta property="og:description" content="Building infrastructure. Empowering communities. Mending the future." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sthololwaziprojects.lovable.app/" />
+  <meta property="og:image" content="https://sthololwaziprojects.lovable.app/hero-construction.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sthololwazi Projects — Civil & Building Construction" />
+  <meta name="twitter:description" content="100% black-owned, B-BBEE Level 1 contractor in Mpumalanga." />
+  <meta name="twitter:image" content="https://sthololwaziprojects.lovable.app/hero-construction.jpg" />
+
+  <link rel="canonical" href="https://sthololwaziprojects.lovable.app/" />
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Sthololwazi Projects",
+      "url": "https://sthololwaziprojects.lovable.app/"
+    }
+  </script>
+
+  <!-- Styles: Inline critical styles and fonts -->
+  <style>
+    /* --- Reset & Base --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #ffffff;
+      color: #1a1a1a;
+      line-height: 1.5;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* --- Typography & Utilities --- */
+    .container-page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    .display-xl {
+      font-size: clamp(2.8rem, 10vw, 5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .display-lg {
+      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      font-weight: 300;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .italic-accent {
+      font-style: italic;
+      color: #C99A3B;
+    }
+    .eyebrow {
+      font-size: 0.6875rem; /* 11px */
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-weight: 600;
+      color: #C99A3B;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .rule-gold {
+      display: inline-block;
+      width: 2rem;
+      height: 2px;
+      background: #C99A3B;
+    }
+    .text-gold { color: #C99A3B; }
+    .text-onyx { color: #1a1a1a; }
+    .text-white { color: #ffffff; }
+    .bg-onyx { background: #1a1a1a; }
+    .bg-forest { background: #1e3d2e; }
+    .bg-gold-light { background: #f5e7c8; }
+    .border-border { border-color: #e5e5e5; }
+
+    /* --- Buttons --- */
+    .btn-gold, .btn-primary, .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 2rem;
+      font-weight: 500;
+      border-radius: 9999px;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-size: 0.95rem;
+    }
+    .btn-gold {
+      background: #C99A3B;
+      color: #1a1a1a;
+    }
+    .btn-gold:hover {
+      background: #b8892e;
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: #1a1a1a;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #333;
+    }
+    .btn-ghost {
+      background: transparent;
+      border-color: currentColor;
+    }
+    .btn-ghost:hover {
+      background: rgba(0,0,0,0.05);
+    }
+    .btn-ghost-white {
+      border-color: rgba(255,255,255,0.3);
+      color: white;
+    }
+    .btn-ghost-white:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: white;
+    }
+
+    /* --- Sections --- */
+    section { padding: 4rem 0; }
+    @media (min-width: 768px) { section { padding: 6rem 0; } }
+
+    /* --- Hero --- */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(26,26,26,0.9) 0%, rgba(26,26,26,0.4) 50%, rgba(26,26,26,0.4) 100%);
+    }
+    .hero-overlay-right {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(26,26,26,0.6) 0%, transparent 100%);
+    }
+    .hero-content {
+      position: relative;
+      padding: 6rem 0 4rem;
+      width: 100%;
+      color: white;
+    }
+    .hero-content .max-w-3xl { max-width: 48rem; }
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      max-width: 32rem;
+      margin-top: 2.5rem;
+    }
+    @media (min-width: 640px) {
+      .hero-stats { grid-template-columns: repeat(4, 1fr); }
+    }
+    .stat-number {
+      font-family: 'Georgia', serif;
+      font-size: 2rem;
+      font-weight: 300;
+    }
+    @media (min-width: 768px) {
+      .stat-number { font-size: 2.5rem; }
+    }
+    .stat-label {
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.55);
+      margin-top: 0.25rem;
+    }
+
+    /* --- Grid & Cards --- */
+    .grid-3 {
+      display: grid;
+      gap: 1px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) {
+      .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    }
+    .service-card {
+      background: #1a1a1a;
+      padding: 2.5rem 2rem;
+      transition: background 0.5s;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      .service-card { padding: 3rem; }
+    }
+    .service-card:hover { background: #1e3d2e; }
+    .service-card .number-badge {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #C99A3B;
+      letter-spacing: 0.1em;
+    }
+    .service-card .number-large {
+      font-family: 'Georgia', serif;
+      font-size: 3rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.15);
+      transition: color 0.5s;
+    }
+    .service-card:hover .number-large { color: rgba(201,154,59,0.4); }
+    .service-card h3 {
+      font-family: 'Georgia', serif;
+      font-size: 1.75rem;
+      margin-top: 1.5rem;
+      color: white;
+    }
+    .service-card p { color: rgba(255,255,255,0.65); font-size: 0.9rem; margin-top: 1rem; }
+    .service-card ul { margin-top: 1.5rem; list-style: none; color: rgba(255,255,255,0.8); }
+    .service-card ul li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+    .service-card ul li span { display: inline-block; width: 0.75rem; height: 2px; background: #C99A3B; }
+    .service-card .learn-link {
+      margin-top: auto;
+      padding-top: 2rem;
+      color: #C99A3B;
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+    }
+    .service-card .learn-link:hover { color: white; }
+
+    /* --- Misc --- */
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-3xl { border-radius: 1.5rem; }
+    .border { border: 1px solid; }
+    .border-white\/15 { border-color: rgba(255,255,255,0.15); }
+    .bg-white\/\[0\.03\] { background: rgba(255,255,255,0.03); }
+    .backdrop-blur-sm { backdrop-filter: blur(4px); }
+    .divide-y > * + * { border-top: 1px solid #e5e5e5; }
+    .border-y { border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; }
+
+    .aspect-\[4\/5\] { aspect-ratio: 4/5; }
+    .aspect-\[4\/3\] { aspect-ratio: 4/3; }
+    .aspect-\[3\/4\] { aspect-ratio: 3/4; }
+    .object-cover { object-fit: cover; }
+    .w-full { width: 100%; }
+
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .items-end { align-items: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .gap-6 { gap: 1.5rem; }
+    .gap-8 { gap: 2rem; }
+    .gap-12 { gap: 3rem; }
+
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-5 { margin-top: 1.25rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mt-8 { margin-top: 2rem; }
+    .mt-10 { margin-top: 2.5rem; }
+    .mt-14 { margin-top: 3.5rem; }
+    .mt-16 { margin-top: 4rem; }
+    .mb-16 { margin-bottom: 4rem; }
+    .mb-20 { margin-bottom: 5rem; }
+    .pb-20 { padding-bottom: 5rem; }
+    .pt-2 { padding-top: 0.5rem; }
+    .pt-8 { padding-top: 2rem; }
+    .pt-40 { padding-top: 10rem; }
+    .pb-32 { padding-bottom: 8rem; }
+
+    .text-sm { font-size: 0.875rem; }
+    .text-base { font-size: 1rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .text-3xl { font-size: 1.875rem; }
+    .text-5xl { font-size: 3rem; }
+    .text-xs { font-size: 0.75rem; }
+    .font-light { font-weight: 300; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-mono { font-family: monospace; }
+    .font-display { font-family: 'Georgia', serif; }
+    .leading-none { line-height: 1; }
+    .leading-relaxed { line-height: 1.625; }
+    .leading-snug { line-height: 1.25; }
+    .tracking-widest { letter-spacing: 0.1em; }
+    .tracking-\[0\.18em\] { letter-spacing: 0.18em; }
+    .tracking-\[0\.22em\] { letter-spacing: 0.22em; }
+    .uppercase { text-transform: uppercase; }
+    .text-muted-foreground { color: #4a4a4a; }
+    .text-white\/55 { color: rgba(255,255,255,0.55); }
+    .text-white\/60 { color: rgba(255,255,255,0.6); }
+    .text-white\/65 { color: rgba(255,255,255,0.65); }
+    .text-white\/70 { color: rgba(255,255,255,0.7); }
+    .text-white\/75 { color: rgba(255,255,255,0.75); }
+    .text-white\/\[0\.03\] { color: rgba(255,255,255,0.03); }
+    .text-onyx\/70 { color: rgba(26,26,26,0.7); }
+
+    .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-cols-1 { grid-template-columns: 1fr; }
+    @media (min-width: 768px) {
+      .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+      .md\:grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+      .md\:col-span-5 { grid-column: span 5; }
+      .md\:col-span-6 { grid-column: span 6; }
+      .md\:col-span-8 { grid-column: span 8; }
+      .md\:col-start-7 { grid-column-start: 7; }
+      .md\:col-start-8 { grid-column-start: 8; }
+      .md\:text-right { text-align: right; }
+    }
+    .grid { display: grid; }
+    .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-cols-1 { grid-template-columns: 1fr; }
+    @media (min-width: 640px) {
+      .sm\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+    .col-span-1 { grid-column: span 1; }
+
+    .overflow-hidden { overflow: hidden; }
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .inset-0 { inset: 0; }
+    .pointer-events-none { pointer-events: none; }
+    .transition-transform { transition: transform 0.7s; }
+    .group-hover\:scale-105:hover { transform: scale(1.05); }
+
+    .max-w-2xl { max-width: 42rem; }
+    .max-w-3xl { max-width: 48rem; }
+    .max-w-xl { max-width: 36rem; }
+
+    /* Inline CTA strip */
+    .cta-strip {
+      margin-top: 3.5rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(4px);
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .cta-strip { padding: 2rem; }
+    }
+
+    /* ensure images from assets work: you may need to adjust paths */
+    .logo-img { width: 4rem; height: 4rem; }
+  </style>
+</head>
+<body>
+
+<!-- ========== SITE LAYOUT ========== -->
+<!-- (Assuming SiteLayout provides the container and global structure) -->
+<div class="site-layout">
+
+  <!-- ========== HERO ========== -->
+  <section class="hero">
+    <img
+      src="https://sthololwaziprojects.lovable.app/hero-construction.jpg"
+      alt="Sthololwazi Projects construction site in Mpumalanga at golden hour"
+      width="1920" height="1280"
+      class="hero-bg"
+    />
+    <div class="hero-overlay"></div>
+    <div class="hero-overlay-right"></div>
+
+    <div class="hero-content container-page">
+      <div class="max-w-3xl">
+        <div class="flex items-center gap-3 text-[11px] uppercase tracking-[0.22em] text-gold">
+          <span class="rule-gold"></span>
+          Est. 2017 · Mbombela, Mpumalanga
+        </div>
+        <h1 class="display-xl mt-6 text-white">
+          Building infrastructure.
+          <br />
+          <span class="italic-accent">Empowering</span> communities.
+        </h1>
+        <p class="mt-8 max-w-xl text-base md:text-lg text-white/75 leading-relaxed">
+          A 100% black-owned, B-BBEE Level 1 civil and building construction partner — pairing
+          technical mastery with a measurable mandate to upskill the workforces of the
+          communities we build in.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a href="/contact" class="btn-gold">Start a project</a>
+          <a href="/services" class="btn-ghost btn-ghost-white">Our services</a>
+        </div>
+
+        <div class="hero-stats">
+          <div><div class="stat-number">2017</div><div class="stat-label">Established</div></div>
+          <div><div class="stat-number">Level 1</div><div class="stat-label">B-BBEE</div></div>
+          <div><div class="stat-number">100%</div><div class="stat-label">Black-Owned</div></div>
+          <div><div class="stat-number">3</div><div class="stat-label">Divisions</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PHILOSOPHY ========== -->
+  <section class="container-page py-28 md:py-40">
+    <div class="grid gap-16 md:grid-cols-12 items-start">
+      <div class="md:col-span-5">
+        <div class="eyebrow">Our philosophy</div>
+        <h2 class="display-lg mt-6">
+          Not a contractor. An <span class="italic-accent">infrastructure &amp; social</span> development partner.
+        </h2>
+      </div>
+      <div class="md:col-span-6 md:col-start-7 space-y-6 text-[15px] leading-[1.75] text-muted-foreground">
+        <p>
+          Founded in 2017 in response to a regional need for technically excellent construction
+          that simultaneously advances Broad-based Black Economic Empowerment, Sthololwazi
+          Projects operates on a dual mandate.
+        </p>
+        <p>
+          We deliver high-quality civil and building works — and we ensure that every project
+          leaves behind a lasting legacy of skills, local employment, and economic dignity for
+          previously disadvantaged communities.
+        </p>
+        <p class="font-display text-2xl text-foreground italic font-light leading-snug pt-2">
+          “Building infrastructure. Empowering communities. Mending the future — one brick, one
+          skill, one life at a time.”
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SERVICES ========== -->
+  <section id="services" class="relative bg-onyx text-white py-28 md:py-40 overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.04] pointer-events-none" style="background-image: repeating-linear-gradient(45deg, #C99A3B 0 1px, transparent 1px 22px);"></div>
+    <div class="container-page relative">
+      <div class="grid gap-12 md:grid-cols-12 items-end mb-20">
+        <div class="md:col-span-8">
+          <div class="text-[11px] uppercase tracking-[0.22em] text-gold font-semibold flex items-center gap-3">
+            <span class="rule-gold"></span> What we do best
+          </div>
+          <h2 class="display-xl mt-6 text-white">
+            Services <span class="italic-accent">engineered</span> for impact.
+          </h2>
+          <p class="mt-8 text-white/70 text-lg max-w-2xl leading-relaxed">
+            Three integrated divisions delivering technical excellence and measurable
+            empowerment on every project — from bulk earthworks to handover.
+          </p>
+        </div>
+        <div class="md:col-span-4 md:text-right">
+          <a href="/services" class="btn-gold">Explore all services →</a>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <!-- Card 1 -->
+        <div class="service-card">
+          <div class="flex items-baseline justify-between">
+            <span class="number-badge">01 · DIVISION</span>
+            <span class="number-large">01</span>
+          </div>
+          <h3>Civil Construction</h3>
+          <p>Roads, stormwater, water reticulation, sewer &amp; sanitation, and bulk earthworks — to SANS 1200 standards.</p>
+          <ul>
+            <li><span></span> Roads &amp; asphalt</li>
+            <li><span></span> Water reticulation</li>
+            <li><span></span> Bulk earthworks</li>
+            <li><span></span> Stormwater</li>
+          </ul>
+          <a href="/services" class="learn-link">Learn more <span aria-hidden>→</span></a>
+        </div>
+        <!-- Card 2 -->
+        <div class="service-card">
+          <div class="flex items-baseline justify-between">
+            <span class="number-badge">02 · DIVISION</span>
+            <span class="number-large">02</span>
+          </div>
+          <h3>Building Construction</h3>
+          <p>RDP &amp; social housing, commercial structures, renovations, ceilings, plumbing, carpentry and welding.</p>
+          <ul>
+            <li><span></span> RDP housing</li>
+            <li><span></span> Commercial builds</li>
+            <li><span></span> Renovations</li>
+            <li><span></span> Plumbing &amp; tiling</li>
+          </ul>
+          <a href="/services" class="learn-link">Learn more <span aria-hidden>→</span></a>
+        </div>
+        <!-- Card 3 -->
+        <div class="service-card">
+          <div class="flex items-baseline justify-between">
+            <span class="number-badge">03 · DIVISION</span>
+            <span class="number-large">03</span>
+          </div>
+          <h3>Material Supply</h3>
+          <p>In-house supply division delivering bricks, cement, aggregates and steel direct to site at scale.</p>
+          <ul>
+            <li><span></span> Bricks &amp; cement</li>
+            <li><span></span> Aggregates</li>
+            <li><span></span> Steel &amp; rebar</li>
+            <li><span></span> Site consumables</li>
+          </ul>
+          <a href="/services" class="learn-link">Learn more <span aria-hidden>→</span></a>
+        </div>
+      </div>
+
+      <!-- CTA Strip -->
+      <div class="cta-strip">
+        <div>
+          <div class="font-display text-2xl md:text-3xl text-white">Need a quote on a specific scope?</div>
+          <div class="text-sm text-white/60 mt-2">Tender response · Private development · Material supply · 48-hour reply.</div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <a href="/contact" class="btn-gold">Request a quote</a>
+          <a href="tel:+27646204247" class="btn-ghost btn-ghost-white">Call 064 620 4247</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== IMAGE + COMMITMENT ========== -->
+  <section class="container-page py-28 md:py-40">
+    <div class="grid gap-12 md:grid-cols-12 items-center">
+      <div class="md:col-span-6">
+        <img
+          src="https://sthololwaziprojects.lovable.app/craft-bricks.jpg"
+          alt="Skilled artisan laying brickwork on a Sthololwazi Projects site"
+          width="1280" height="1280"
+          loading="lazy"
+          class="rounded-2xl object-cover aspect-[4/5] w-full"
+        />
+      </div>
+      <div class="md:col-span-5 md:col-start-8">
+        <div class="eyebrow">The empowerment multiplier</div>
+        <h2 class="display-lg mt-6">A verifiable B-BBEE contribution on every project.</h2>
+        <p class="mt-8 text-[15px] leading-[1.75] text-muted-foreground">
+          For every site we open, our first operational directive is to identify, onboard and
+          upskill local workers in partnership with ward councillors and community structures. A
+          measurable portion of project value is converted into accredited, on-the-job training.
+        </p>
+        <ul class="mt-10 divide-y border-y border-border">
+          <li class="py-5 flex gap-6">
+            <span class="font-mono text-xs text-gold pt-1">→</span>
+            <div><div class="font-medium text-foreground">Each One, Teach One</div><div class="text-sm text-muted-foreground mt-1">Mentorship programme pairing artisans with local mentees.</div></div>
+          </li>
+          <li class="py-5 flex gap-6">
+            <span class="font-mono text-xs text-gold pt-1">→</span>
+            <div><div class="font-medium text-foreground">Ward-level engagement</div><div class="text-sm text-muted-foreground mt-1">Transparent hiring with the communities we build in.</div></div>
+          </li>
+          <li class="py-5 flex gap-6">
+            <span class="font-mono text-xs text-gold pt-1">→</span>
+            <div><div class="font-medium text-foreground">Skills Transfer Register</div><div class="text-sm text-muted-foreground mt-1">Live B-BBEE evidence captured per project, per skill.</div></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PROJECTS ========== -->
+  <section class="bg-onyx text-white py-28 md:py-36">
+    <div class="container-page">
+      <div class="flex items-end justify-between gap-8 flex-wrap mb-16">
+        <div>
+          <div class="text-[11px] uppercase tracking-[0.22em] text-gold font-semibold">Track record</div>
+          <h2 class="display-lg mt-5 text-white max-w-2xl">From a single classroom block to 500 homes delivered.</h2>
+        </div>
+        <a href="/projects" class="btn-ghost btn-ghost-white">View all projects →</a>
+      </div>
+
+      <div class="grid gap-8 md:grid-cols-3">
+        <article class="group">
+          <div class="overflow-hidden rounded-xl">
+            <img
+              src="https://sthololwaziprojects.lovable.app/project-rdp.jpg"
+              alt="500 RDP Houses"
+              width="1280" height="896"
+              loading="lazy"
+              class="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          </div>
+          <div class="mt-5">
+            <div class="font-mono text-xs text-gold">R 53,000,000</div>
+            <h3 class="font-display text-2xl mt-2 text-white">500 RDP Houses</h3>
+            <p class="text-sm text-white/60 mt-1">National housing delivery, project management</p>
+          </div>
+        </article>
+        <article class="group">
+          <div class="overflow-hidden rounded-xl">
+            <img
+              src="https://sthololwaziprojects.lovable.app/project-hospital.jpg"
+              alt="Evander Hospital"
+              width="1280" height="896"
+              loading="lazy"
+              class="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          </div>
+          <div class="mt-5">
+            <div class="font-mono text-xs text-gold">R 70,000</div>
+            <h3 class="font-display text-2xl mt-2 text-white">Evander Hospital</h3>
+            <p class="text-sm text-white/60 mt-1">Renovation works</p>
+          </div>
+        </article>
+        <article class="group">
+          <div class="overflow-hidden rounded-xl">
+            <img
+              src="https://sthololwaziprojects.lovable.app/project-school.jpg"
+              alt="Tholinhlanhla Primary School"
+              width="1280" height="896"
+              loading="lazy"
+              class="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          </div>
+          <div class="mt-5">
+            <div class="font-mono text-xs text-gold">R 97,000</div>
+            <h3 class="font-display text-2xl mt-2 text-white">Tholinhlanhla Primary School</h3>
+            <p class="text-sm text-white/60 mt-1">Renovation works</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PEOPLE ========== -->
+  <section class="container-page py-28 md:py-40">
+    <div class="grid gap-12 md:grid-cols-12 items-center">
+      <div class="md:col-span-5">
+        <div class="eyebrow">Our people</div>
+        <h2 class="display-lg mt-6">Master craft. <span class="italic-accent">Local knowledge.</span></h2>
+        <p class="mt-8 text-[15px] leading-[1.75] text-muted-foreground">
+          From RDP homes to commercial complexes, every brick, tile and pipe is installed to
+          SANS standards. We are accountable to the communities we build in, and we hire locally
+          on every site.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a href="/about" class="btn-primary">About us</a>
+          <a href="/contact" class="btn-ghost">Work with us</a>
+        </div>
+      </div>
+      <div class="md:col-span-6 md:col-start-7 grid grid-cols-2 gap-4">
+        <img
+          src="https://sthololwaziprojects.lovable.app/team-foreman.jpg"
+          alt="Site foreman"
+          width="1024" height="1280"
+          loading="lazy"
+          class="rounded-xl object-cover aspect-[3/4] w-full"
+        />
+        <div class="space-y-4">
+          <div class="rounded-xl bg-forest text-white p-6">
+            <div class="font-display text-5xl font-light leading-none">135<span class="text-2xl align-top">%</span></div>
+            <div class="mt-3 text-xs uppercase tracking-[0.18em] text-white/70">Procurement recognition</div>
+          </div>
+          <div class="rounded-xl bg-gold-light p-6">
+            <div class="font-display text-5xl font-light leading-none text-onyx">Zero</div>
+            <div class="mt-3 text-xs uppercase tracking-[0.18em] text-onyx/70">Harm site policy</div>
+          </div>
+          <div class="rounded-xl border border-border p-6">
+            <div class="font-mono text-xs text-gold">CIDB 10127071</div>
+            <div class="mt-2 text-sm text-muted-foreground">Construction Industry Development Board registered.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CTA ========== -->
+  <section class="container-page pb-32">
+    <div class="rounded-3xl bg-forest text-white p-12 md:p-20 relative overflow-hidden">
+      <div class="absolute -top-20 -right-20 h-72 w-72 rounded-full border-[
