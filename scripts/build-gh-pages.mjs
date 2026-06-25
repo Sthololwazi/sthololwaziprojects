@@ -85,25 +85,18 @@ async function findServerModule() {
 
 async function loadWorkerModule(serverPath) {
   try {
-    // Try ES module import
+    log(`Attempting to load worker from: ${serverPath}`, "WORKER");
     const workerUrl = pathToFileURL(serverPath).href;
     const mod = await import(workerUrl);
+    log(`Worker loaded successfully.`, "WORKER");
     return mod.default ?? mod;
   } catch (err) {
-    log(`ESM import failed: ${err.message}`, "WARN");
-    
-    try {
-      // Try CommonJS require
-      const require = createRequire(import.meta.url);
-      const mod = require(serverPath);
-      return mod.default ?? mod;
-    } catch (err2) {
-      log(`CJS require failed: ${err2.message}`, "WARN");
-      return null;
-    }
+    log(`❌ CRITICAL: Failed to load worker module: ${err.message}`, "ERROR");
+    log(`Error stack: ${err.stack}`, "ERROR");
+    // Re-throw to stop the build and make the failure obvious.
+    throw new Error(`Worker load failed: ${err.message}`);
   }
 }
-
 async function buildProject() {
   log("Starting build process...", "BUILD");
   
