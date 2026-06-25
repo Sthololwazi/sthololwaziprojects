@@ -33,6 +33,10 @@ jobs:
           if [ -f .output/public/index.html ] && [ ! -f .output/public/404.html ]; then
             cp .output/public/index.html .output/public/404.html
           fi
+          # Custom domain binding — Pages reads CNAME from the artifact root.
+          if [ -f CNAME ] && [ ! -f .output/public/CNAME ]; then
+            cp CNAME .output/public/CNAME
+          fi
       - name: Verify expected static outputs
         run: |
           set -e

@@ -136,6 +136,18 @@ async function main() {
   // 6. Jekyll opt-out.
   await fs.writeFile(path.join(OUT, ".nojekyll"), "");
 
+  // 6b. Preserve custom domain binding — GitHub Pages reads CNAME from the
+  //     uploaded artifact, not from the repo root.
+  try {
+    const cname = (await fs.readFile(path.join(ROOT, "CNAME"), "utf8")).trim();
+    if (cname) {
+      await fs.writeFile(path.join(OUT, "CNAME"), `${cname}\n`);
+      log(`wrote CNAME (${cname})`);
+    }
+  } catch {
+    log("no repo-root CNAME found; skipping custom-domain binding");
+  }
+
   // 7. Verify every sitemap <loc> uses SITE_URL and resolves to a real
   //    file on the mirror (rendered index.html for HTML routes, the asset
   //    file for things like /api/og/projects/<slug>.svg).
