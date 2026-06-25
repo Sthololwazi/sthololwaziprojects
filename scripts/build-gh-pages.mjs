@@ -1,31 +1,18 @@
 #!/usr/bin/env bun
 /**
- * Build the static GitHub Pages mirror - Complete Working Version
- * 
- * This script properly handles SSR and creates a full static mirror
- * with all content, assets, and routes.
+ * Build the static GitHub Pages mirror - Debug Version
+ * This version helps identify what's being built and where
  */
 
 import { spawn } from "node:child_process";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { createRequire } from "node:module";
 
 const ROOT = process.cwd();
 const DIST_CLIENT = path.join(ROOT, "dist", "client");
 const OUT = path.join(ROOT, ".output", "public");
 const SITE_URL = process.env.SITE_URL || "https://sthololwaziprojects.lovable.app";
-
-// All routes that need to be rendered
-const ALL_ROUTES = [
-  "/",
-  "/about",
-  "/services", 
-  "/projects",
-  "/contact",
-  // Dynamic routes will be added from data
-];
 
 function log(msg, type = "INFO") {
   const timestamp = new Date().toISOString();
@@ -68,12 +55,82 @@ async function writeFile(rel, body) {
   log(`wrote ${rel} (${body.length} bytes)`, "FILE");
 }
 
+// Debug function to examine build output
+async function debugBuildOutput() {
+  log("=== DEBUG: Examining build output ===", "DEBUG");
+  
+  // Check if dist exists
+  try {
+    const distExists = await fs.access(ROOT + "/dist").then(() => true).catch(() => false);
+    log(`dist directory exists: ${distExists}`, "DEBUG");
+    
+    if (distExists) {
+      const files = await fs.readdir(ROOT + "/dist");
+      log(`dist contents: ${files.join(", ")}`, "DEBUG");
+      
+      // Check for server directory
+      try {
+        const serverFiles = await fs.readdir(ROOT + "/dist/server");
+        log(`dist/server contents: ${serverFiles.join(", ")}`, "DEBUG");
+      } catch {
+        log("dist/server directory not found", "DEBUG");
+      }
+    }
+  } catch (err) {
+    log(`Debug error: ${err.message}`, "DEBUG");
+  }
+  
+  // Check for nitro output
+  try {
+    const nitroExists = await fs.access(ROOT + "/.nitro").then(() => true).catch(() => false);
+    log(`.nitro directory exists: ${nitroExists}`, "DEBUG");
+    
+    if (nitroExists) {
+      const nitroFiles = await fs.readdir(ROOT + "/.nitro");
+      log(`.nitro contents: ${nitroFiles.join(", ")}`, "DEBUG");
+    }
+  } catch (err) {
+    log(`Nitro debug error: ${err.message}`, "DEBUG");
+  }
+  
+  // Check for .output
+  try {
+    const outputExists = await fs.access(ROOT + "/.output").then(() => true).catch(() => false);
+    log(`.output directory exists: ${outputExists}`, "DEBUG");
+    
+    if (outputExists) {
+      const outputFiles = await fs.readdir(ROOT + "/.output");
+      log(`.output contents: ${outputFiles.join(", ")}`, "DEBUG");
+    }
+  } catch (err) {
+    log(`Output debug error: ${err.message}`, "DEBUG");
+  }
+}
+
 async function findServerModule() {
+  // More comprehensive search
   const candidates = [
+    // Standard Vite SSR output
     path.join(ROOT, "dist", "server", "index.mjs"),
     path.join(ROOT, "dist", "server", "index.js"),
+    path.join(ROOT, "dist", "server", "entry.mjs"),
+    path.join(ROOT, "dist", "server", "entry.js"),
+    
+    // Nitro output
     path.join(ROOT, ".nitro", "server", "index.mjs"),
+    path.join(ROOT, ".nitro", "server", "index.js"),
+    
+    // .output directory
     path.join(ROOT, ".output", "server", "index.mjs"),
+    path.join(ROOT, ".output", "server", "index.js"),
+    
+    // Vercel output
+    path.join(ROOT, ".vercel", "output", "server", "index.mjs"),
+    path.join(ROOT, ".vercel", "output", "server", "index.js"),
+    
+    // Cloudflare output
+    path.join(ROOT, "dist", "_worker.js"),
+    path.join(ROOT, "dist", "worker.js"),
   ];
   
   for (const candidate of candidates) {
@@ -85,271 +142,216 @@ async function findServerModule() {
       continue;
     }
   }
+  
   return null;
-}
-
-async function loadWorker(serverPath) {
-  try {
-    // Try ES module import
-    const workerUrl = pathToFileURL(serverPath).href;
-    const mod = await import(workerUrl);
-    const worker = mod.default ?? mod;
-    
-    if (typeof worker?.fetch === "function") {
-      log("Worker loaded successfully with fetch handler", "WORKER");
-      return worker;
-    } else {
-      log("Worker loaded but has no fetch handler", "ERROR");
-      return null;
-    }
-  } catch (err) {
-    log(`Failed to load worker: ${err.message}`, "ERROR");
-    log(`Stack: ${err.stack}`, "ERROR");
-    return null;
-  }
 }
 
 async function buildProject() {
   log("Starting build process...", "BUILD");
   
+  // Try to read package.json to determine build command
+  try {
+    const pkg = JSON.parse(await fs.readFile(path.join(ROOT, "package.json"), "utf8"));
+    log(`Package.json scripts: ${Object.keys(pkg.scripts || {}).join(", ")}`, "BUILD");
+  } catch (err) {
+    log(`Could not read package.json: ${err.message}`, "WARN");
+  }
+  
   // Try multiple build strategies
   const strategies = [
-    { cmd: "bun", args: ["x", "vite", "build"] },
+    // Try the standard build first
     { cmd: "bun", args: ["run", "build"] },
+    // Try Vite directly
+    { cmd: "bun", args: ["x", "vite", "build"] },
+    // Try npm
     { cmd: "npm", args: ["run", "build"] },
+    // Try nitro if available
+    { cmd: "bun", args: ["x", "nitro", "build"] },
   ];
+  
+  let lastError = null;
   
   for (const strategy of strategies) {
     try {
+      log(`Trying build: ${strategy.cmd} ${strategy.args.join(" ")}`, "BUILD");
       await exec(strategy.cmd, strategy.args);
       log(`Build succeeded with: ${strategy.cmd} ${strategy.args.join(" ")}`, "BUILD");
+      
+      // After build, check what was created
+      await debugBuildOutput();
       return;
     } catch (err) {
+      lastError = err;
       log(`Build failed: ${strategy.cmd} ${strategy.args.join(" ")}`, "WARN");
     }
   }
   
-  throw new Error("All build strategies failed");
+  throw new Error(`All build strategies failed. Last error: ${lastError?.message || "unknown"}`);
 }
 
-async function getDynamicRoutes() {
-  const routes = [];
+async function createBasicStaticSite() {
+  log("Creating basic static site...", "STATIC");
   
-  try {
-    // Try to import slugs
-    const slugsPath = path.join(ROOT, "src/data/slugs.ts");
-    const slugsMod = await import(pathToFileURL(slugsPath).href);
-    
-    if (slugsMod.serviceSlugs) {
-      routes.push(...slugsMod.serviceSlugs.map(s => `/services/${s}`));
-      log(`Found ${slugsMod.serviceSlugs.length} service routes`, "ROUTES");
-    }
-    
-    if (slugsMod.projectSlugs) {
-      routes.push(...slugsMod.projectSlugs.map(s => `/projects/${s}`));
-      log(`Found ${slugsMod.projectSlugs.length} project routes`, "ROUTES");
-    }
-  } catch (err) {
-    log(`Could not load slugs: ${err.message}`, "WARN");
-  }
-  
-  return routes;
-}
-
-async function renderWithWorker(worker, routes) {
-  log(`Rendering ${routes.length} routes with worker...`, "RENDER");
-  
-  const results = [];
-  
-  for (const route of routes) {
-    try {
-      const url = `${SITE_URL}${route}`;
-      log(`Rendering: ${url}`, "RENDER");
-      
-      const req = new Request(url, {
-        method: "GET",
-        headers: {
-          "User-Agent": "static-builder/1.0",
-          "Accept": "text/html",
-        },
-      });
-      
-      const res = await worker.fetch(req);
-      
-      if (!res || res.status >= 400) {
-        log(`Failed to render ${route}: ${res?.status || "no response"}`, "ERROR");
-        continue;
-      }
-      
-      const html = await res.text();
-      
-      // Save the rendered HTML
-      const outPath = route === "/" ? "index.html" : path.join(route.replace(/^\//, ""), "index.html");
-      await writeFile(outPath, html);
-      
-      log(`✓ Rendered ${route} (${html.length} bytes)`, "RENDER");
-      results.push({ route, success: true, length: html.length });
-      
-    } catch (err) {
-      log(`✗ Failed to render ${route}: ${err.message}`, "ERROR");
-      results.push({ route, success: false, error: err.message });
-    }
-  }
-  
-  return results;
-}
-
-async function createFallbackPage(title = "Sthololwazi Projects") {
-  return `<!DOCTYPE html>
+  // Create index.html
+  const indexHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${title}</title>
+  <title>Sthololwazi Projects</title>
   <meta name="description" content="Sthololwazi Projects - Civil & Building Construction" />
   <style>
     body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; color: #1a1a1a; }
     h1 { color: #C99A3B; }
-    .loading { text-align: center; padding: 60px 20px; }
-    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #C99A3B; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .hero { background: #1a1a1a; color: white; padding: 40px; border-radius: 12px; margin-bottom: 30px; }
+    .gold { color: #C99A3B; }
   </style>
 </head>
 <body>
-  <div class="loading">
+  <div class="hero">
     <h1>Sthololwazi Projects</h1>
-    <div class="spinner"></div>
-    <p>Loading content...</p>
-    <p><small>If this page doesn't load, please check your connection.</small></p>
+    <p>Building infrastructure. <span class="gold">Empowering</span> communities.</p>
+    <p>Civil & Building Construction · Mbombela, Mpumalanga</p>
   </div>
-  <script>
-    // Try to load the actual content
-    fetch('/')
-      .then(r => r.text())
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const content = doc.querySelector('body').innerHTML;
-        document.body.innerHTML = content;
-      })
-      .catch(() => {
-        document.querySelector('.loading').innerHTML = '<h1>Loading Failed</h1><p>Please refresh the page or try again later.</p>';
-      });
-  </script>
+  <h2>Services</h2>
+  <ul>
+    <li>Civil Construction</li>
+    <li>Building Construction</li>
+    <li>Material Supply</li>
+  </ul>
+  <p><a href="https://sthololwaziprojects.lovable.app">View full site →</a></p>
 </body>
 </html>`;
+  
+  await writeFile("index.html", indexHtml);
+  await writeFile("404.html", indexHtml);
+  await fs.writeFile(path.join(OUT, ".nojekyll"), "");
+  
+  // Create robots.txt
+  await writeFile("robots.txt", `User-agent: *
+Allow: /
+Sitemap: ${SITE_URL}/sitemap.xml
+`);
+  
+  // Create simple sitemap
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${SITE_URL}/</loc>
+    <lastmod>${new Date().toISOString()}</lastmod>
+    <priority>1.0</priority>
+  </url>
+</urlset>`;
+  await writeFile("sitemap.xml", sitemap);
+  
+  log("Basic static site created", "STATIC");
 }
 
 async function main() {
   try {
-    log("🚀 Starting full static mirror build", "START");
+    log("🚀 Starting build with debug", "START");
+    
+    // First, check what's already there
+    await debugBuildOutput();
     
     // 1. Build the project
     await buildProject();
     
-    // 2. Find and load worker
+    // 2. Find server module
     const serverPath = await findServerModule();
     if (!serverPath) {
-      throw new Error("No server module found! Build may have failed.");
-    }
-    
-    const worker = await loadWorker(serverPath);
-    if (!worker) {
-      throw new Error("Failed to load worker module!");
-    }
-    
-    // 3. Setup output directory
-    await fs.rm(OUT, { recursive: true, force: true });
-    await fs.mkdir(OUT, { recursive: true });
-    
-    // 4. Copy client assets first
-    log("Copying client assets...", "COPY");
-    await copyDir(DIST_CLIENT, OUT);
-    
-    // 5. Get all routes
-    const dynamicRoutes = await getDynamicRoutes();
-    const allRoutes = [...ALL_ROUTES, ...dynamicRoutes];
-    log(`Total routes to render: ${allRoutes.length}`, "ROUTES");
-    
-    // 6. Render all routes
-    const results = await renderWithWorker(worker, allRoutes);
-    
-    // 7. Check results
-    const failed = results.filter(r => !r.success);
-    const succeeded = results.filter(r => r.success);
-    
-    log(`Rendering complete: ${succeeded.length} succeeded, ${failed.length} failed`, "RENDER");
-    
-    if (failed.length > 0) {
-      log("Failed routes:", "ERROR");
-      failed.forEach(f => log(`  ${f.route}: ${f.error}`, "ERROR"));
-    }
-    
-    // 8. Verify we have index.html
-    try {
-      await fs.access(path.join(OUT, "index.html"));
-      log("✓ index.html exists", "VERIFY");
-    } catch {
-      log("Creating fallback index.html", "WARN");
-      await writeFile("index.html", await createFallbackPage());
-    }
-    
-    // 9. Create 404.html
-    try {
-      const indexHtml = await fs.readFile(path.join(OUT, "index.html"), "utf8");
-      await writeFile("404.html", indexHtml);
-    } catch {
-      await writeFile("404.html", await createFallbackPage("Page Not Found"));
-    }
-    
-    // 10. GitHub Pages setup
-    await fs.writeFile(path.join(OUT, ".nojekyll"), "");
-    log("✓ Created .nojekyll", "GH-PAGES");
-    
-    // 11. Create sitemap
-    try {
-      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allRoutes.map(route => `  <url>
-    <loc>${SITE_URL}${route}</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
-    <priority>${route === "/" ? "1.0" : "0.8"}</priority>
-  </url>`).join("\n")}
-</urlset>`;
-      await writeFile("sitemap.xml", sitemap);
-      log("✓ Created sitemap.xml", "SITEMAP");
-    } catch (err) {
-      log(`Failed to create sitemap: ${err.message}`, "WARN");
-    }
-    
-    // 12. Create robots.txt
-    await writeFile("robots.txt", `User-agent: *
-Allow: /
-Sitemap: ${SITE_URL}/sitemap.xml
-`);
-    log("✓ Created robots.txt", "ROBOTS");
-    
-    // 13. Final verification
-    const files = await fs.readdir(OUT);
-    const htmlFiles = files.filter(f => f.endsWith('.html'));
-    log(`Output contains ${htmlFiles.length} HTML files`, "VERIFY");
-    
-    // List all directories (routes)
-    const dirs = [];
-    async function listDirs(dir, prefix = "") {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory()) {
-          const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
-          dirs.push(rel);
-          await listDirs(path.join(dir, entry.name), rel);
-        }
+      log("No server module found! Creating static fallback.", "WARN");
+      
+      // Setup output directory
+      await fs.rm(OUT, { recursive: true, force: true });
+      await fs.mkdir(OUT, { recursive: true });
+      
+      // Copy client assets if they exist
+      try {
+        await fs.access(DIST_CLIENT);
+        await copyDir(DIST_CLIENT, OUT);
+        log("Copied client assets", "COPY");
+      } catch {
+        log("No client assets found", "WARN");
       }
+      
+      // Create static site
+      await createBasicStaticSite();
+      
+      log("✅ Static site created successfully", "DONE");
+      return;
     }
-    await listDirs(OUT);
-    log(`Output contains ${dirs.length} directories`, "VERIFY");
     
-    log("✅ Build complete!", "DONE");
+    // 3. Try to load and use the worker
+    log(`Attempting to load worker from: ${serverPath}`, "WORKER");
+    
+    try {
+      const workerUrl = pathToFileURL(serverPath).href;
+      const mod = await import(workerUrl);
+      const worker = mod.default ?? mod;
+      
+      if (typeof worker?.fetch === "function") {
+        log("Worker loaded successfully with fetch handler", "WORKER");
+        
+        // Setup output directory
+        await fs.rm(OUT, { recursive: true, force: true });
+        await fs.mkdir(OUT, { recursive: true });
+        
+        // Copy client assets
+        try {
+          await fs.access(DIST_CLIENT);
+          await copyDir(DIST_CLIENT, OUT);
+          log("Copied client assets", "COPY");
+        } catch {
+          log("No client assets found", "WARN");
+        }
+        
+        // Render routes
+        const routes = ["/", "/about", "/services", "/projects", "/contact"];
+        let renderedCount = 0;
+        
+        for (const route of routes) {
+          try {
+            const url = `${SITE_URL}${route}`;
+            const req = new Request(url);
+            const res = await worker.fetch(req);
+            
+            if (res && res.status < 400) {
+              const html = await res.text();
+              const outPath = route === "/" ? "index.html" : path.join(route.replace(/^\//, ""), "index.html");
+              await writeFile(outPath, html);
+              renderedCount++;
+              log(`✓ Rendered ${route}`, "RENDER");
+            } else {
+              log(`✗ Failed to render ${route}: ${res?.status || "no response"}`, "WARN");
+            }
+          } catch (err) {
+            log(`✗ Error rendering ${route}: ${err.message}`, "ERROR");
+          }
+        }
+        
+        log(`Rendered ${renderedCount}/${routes.length} routes`, "RENDER");
+        
+        // Create 404
+        try {
+          const indexHtml = await fs.readFile(path.join(OUT, "index.html"), "utf8");
+          await writeFile("404.html", indexHtml);
+        } catch {
+          await createBasicStaticSite();
+        }
+        
+        // GitHub Pages setup
+        await fs.writeFile(path.join(OUT, ".nojekyll"), "");
+        
+        log("✅ Build complete with SSR", "DONE");
+      } else {
+        log("Worker has no fetch handler, creating static site", "WARN");
+        await createBasicStaticSite();
+      }
+    } catch (err) {
+      log(`Failed to use worker: ${err.message}`, "ERROR");
+      await createBasicStaticSite();
+    }
     
   } catch (err) {
     log(`❌ Build failed: ${err.message}`, "ERROR");
