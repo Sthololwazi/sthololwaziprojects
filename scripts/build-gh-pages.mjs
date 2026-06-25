@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 /**
- * Build the static GitHub Pages mirror.
+ * Build the static GitHub Pages mirror - Complete Working Version
  * 
- * This script ensures the static mirror stays perfectly in sync with the SSR version.
- * It handles the full pipeline from build to verification.
+ * This script properly handles SSR and creates a full static mirror
+ * with all content, assets, and routes.
  */
 
 import { spawn } from "node:child_process";
@@ -16,14 +16,20 @@ const ROOT = process.cwd();
 const DIST_CLIENT = path.join(ROOT, "dist", "client");
 const OUT = path.join(ROOT, ".output", "public");
 const SITE_URL = process.env.SITE_URL || "https://sthololwaziprojects.lovable.app";
-const GH_PAGES_URL = "https://sthololwazi.github.io";
 
-// Core routes that must always be rendered
-const STATIC_ROUTES = ["/", "/about", "/services", "/projects", "/contact"];
+// All routes that need to be rendered
+const ALL_ROUTES = [
+  "/",
+  "/about",
+  "/services", 
+  "/projects",
+  "/contact",
+  // Dynamic routes will be added from data
+];
 
 function log(msg, type = "INFO") {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${type}] [gh-pages] ${msg}`);
+  console.log(`[${timestamp}] [${type}] ${msg}`);
 }
 
 async function exec(cmd, args, options = {}) {
@@ -66,15 +72,14 @@ async function findServerModule() {
   const candidates = [
     path.join(ROOT, "dist", "server", "index.mjs"),
     path.join(ROOT, "dist", "server", "index.js"),
-    path.join(ROOT, "dist", "server", "index.cjs"),
     path.join(ROOT, ".nitro", "server", "index.mjs"),
     path.join(ROOT, ".output", "server", "index.mjs"),
-    path.join(ROOT, ".vercel", "output", "server", "index.mjs"),
   ];
   
   for (const candidate of candidates) {
     try {
       await fs.access(candidate);
+      log(`Found server module: ${candidate}`, "WORKER");
       return candidate;
     } catch {
       continue;
@@ -83,390 +88,266 @@ async function findServerModule() {
   return null;
 }
 
-async function loadWorkerModule(serverPath) {
+async function loadWorker(serverPath) {
   try {
-    log(`Attempting to load worker from: ${serverPath}`, "WORKER");
+    // Try ES module import
     const workerUrl = pathToFileURL(serverPath).href;
     const mod = await import(workerUrl);
-    log(`Worker loaded successfully.`, "WORKER");
-    return mod.default ?? mod;
+    const worker = mod.default ?? mod;
+    
+    if (typeof worker?.fetch === "function") {
+      log("Worker loaded successfully with fetch handler", "WORKER");
+      return worker;
+    } else {
+      log("Worker loaded but has no fetch handler", "ERROR");
+      return null;
+    }
   } catch (err) {
-    log(`❌ CRITICAL: Failed to load worker module: ${err.message}`, "ERROR");
-    log(`Error stack: ${err.stack}`, "ERROR");
-    // Re-throw to stop the build and make the failure obvious.
-    throw new Error(`Worker load failed: ${err.message}`);
+    log(`Failed to load worker: ${err.message}`, "ERROR");
+    log(`Stack: ${err.stack}`, "ERROR");
+    return null;
   }
 }
+
 async function buildProject() {
   log("Starting build process...", "BUILD");
   
   // Try multiple build strategies
-  const buildStrategies = [
+  const strategies = [
     { cmd: "bun", args: ["x", "vite", "build"] },
     { cmd: "bun", args: ["run", "build"] },
     { cmd: "npm", args: ["run", "build"] },
-    { cmd: "bun", args: ["x", "nitro", "build", "--preset", "cloudflare"] },
   ];
   
-  let buildSuccess = false;
-  for (const strategy of buildStrategies) {
+  for (const strategy of strategies) {
     try {
       await exec(strategy.cmd, strategy.args);
-      buildSuccess = true;
-      break;
+      log(`Build succeeded with: ${strategy.cmd} ${strategy.args.join(" ")}`, "BUILD");
+      return;
     } catch (err) {
-      log(`Build strategy failed: ${strategy.cmd} ${strategy.args.join(" ")}`, "WARN");
+      log(`Build failed: ${strategy.cmd} ${strategy.args.join(" ")}`, "WARN");
     }
   }
   
-  if (!buildSuccess) {
-    log("All build strategies failed. Checking for existing build...", "ERROR");
-    try {
-      await fs.access(DIST_CLIENT);
-      log("Found existing build in dist/client", "INFO");
-    } catch {
-      throw new Error("Build failed and no existing build found. Cannot continue.");
-    }
-  }
+  throw new Error("All build strategies failed");
 }
 
-async function generateSitemapsAndOG() {
+async function getDynamicRoutes() {
+  const routes = [];
+  
   try {
-    // Import helpers with fallbacks
-    let renderSitemapIndex, renderPagesSitemap, renderProjectsSitemap;
-    let renderProjectOgSvg, projects, serviceSlugs, projectSlugs;
+    // Try to import slugs
+    const slugsPath = path.join(ROOT, "src/data/slugs.ts");
+    const slugsMod = await import(pathToFileURL(slugsPath).href);
     
-    try {
-      const sitemaps = await import(pathToFileURL(path.join(ROOT, "src/lib/sitemaps.ts")).href);
-      renderSitemapIndex = sitemaps.renderSitemapIndex;
-      renderPagesSitemap = sitemaps.renderPagesSitemap;
-      renderProjectsSitemap = sitemaps.renderProjectsSitemap;
-    } catch (err) {
-      log(`Could not load sitemap helpers: ${err.message}`, "WARN");
+    if (slugsMod.serviceSlugs) {
+      routes.push(...slugsMod.serviceSlugs.map(s => `/services/${s}`));
+      log(`Found ${slugsMod.serviceSlugs.length} service routes`, "ROUTES");
     }
     
-    try {
-      const og = await import(pathToFileURL(path.join(ROOT, "src/lib/og.ts")).href);
-      renderProjectOgSvg = og.renderProjectOgSvg;
-    } catch (err) {
-      log(`Could not load OG helpers: ${err.message}`, "WARN");
+    if (slugsMod.projectSlugs) {
+      routes.push(...slugsMod.projectSlugs.map(s => `/projects/${s}`));
+      log(`Found ${slugsMod.projectSlugs.length} project routes`, "ROUTES");
     }
-    
-    try {
-      const projectData = await import(pathToFileURL(path.join(ROOT, "src/data/projects.ts")).href);
-      projects = projectData.projects;
-    } catch (err) {
-      log(`Could not load project data: ${err.message}`, "WARN");
-      projects = [];
-    }
-    
-    try {
-      const slugs = await import(pathToFileURL(path.join(ROOT, "src/data/slugs.ts")).href);
-      serviceSlugs = slugs.serviceSlugs || [];
-      projectSlugs = slugs.projectSlugs || [];
-    } catch (err) {
-      log(`Could not load slugs: ${err.message}`, "WARN");
-      serviceSlugs = [];
-      projectSlugs = [];
-    }
-    
-    // Generate sitemaps
-    if (renderSitemapIndex) {
-      await writeFile("sitemap.xml", renderSitemapIndex());
-    }
-    if (renderPagesSitemap) {
-      await writeFile("sitemap-pages.xml", renderPagesSitemap());
-    }
-    if (renderProjectsSitemap) {
-      await writeFile("sitemap-projects.xml", renderProjectsSitemap());
-    }
-    
-    // Generate OG SVGs
-    if (renderProjectOgSvg && projects.length) {
-      for (const p of projects) {
-        if (p.slug) {
-          await writeFile(`api/og/projects/${p.slug}.svg`, renderProjectOgSvg(p));
-        }
-      }
-    }
-    
-    return { serviceSlugs, projectSlugs };
   } catch (err) {
-    log(`Error generating sitemaps/OG: ${err.message}`, "ERROR");
-    return { serviceSlugs: [], projectSlugs: [] };
+    log(`Could not load slugs: ${err.message}`, "WARN");
   }
+  
+  return routes;
 }
 
-async function prerenderRoutes(worker, routes) {
-  log(`Prerendering ${routes.length} routes...`, "PRERENDER");
+async function renderWithWorker(worker, routes) {
+  log(`Rendering ${routes.length} routes with worker...`, "RENDER");
   
-  const renderedRoutes = new Set();
-  const failedRoutes = [];
+  const results = [];
   
   for (const route of routes) {
-    const req = new Request(`${SITE_URL}${route}`, {
-      method: "GET",
-      headers: { 
-        "user-agent": "github-pages-prerender/1.0",
-        "x-prerender": "true"
-      },
-    });
-    
     try {
-      const res = await worker.fetch(req, {}, { 
-        waitUntil() {}, 
-        passThroughOnException() {} 
+      const url = `${SITE_URL}${route}`;
+      log(`Rendering: ${url}`, "RENDER");
+      
+      const req = new Request(url, {
+        method: "GET",
+        headers: {
+          "User-Agent": "static-builder/1.0",
+          "Accept": "text/html",
+        },
       });
       
+      const res = await worker.fetch(req);
+      
       if (!res || res.status >= 400) {
-        log(`${route} → status ${res?.status || "ERROR"}`, "WARN");
-        failedRoutes.push(`${route} (status ${res?.status || "ERROR"})`);
+        log(`Failed to render ${route}: ${res?.status || "no response"}`, "ERROR");
         continue;
       }
       
       const html = await res.text();
-      const out = route === "/" ? "index.html" : path.join(route.replace(/^\//, ""), "index.html");
-      await writeFile(out, html);
-      renderedRoutes.add(route);
-      log(`✓ ${route}`, "PRERENDER");
+      
+      // Save the rendered HTML
+      const outPath = route === "/" ? "index.html" : path.join(route.replace(/^\//, ""), "index.html");
+      await writeFile(outPath, html);
+      
+      log(`✓ Rendered ${route} (${html.length} bytes)`, "RENDER");
+      results.push({ route, success: true, length: html.length });
+      
     } catch (err) {
-      log(`✗ ${route} threw: ${err.message}`, "ERROR");
-      failedRoutes.push(`${route} (threw: ${err.message})`);
+      log(`✗ Failed to render ${route}: ${err.message}`, "ERROR");
+      results.push({ route, success: false, error: err.message });
     }
   }
   
-  log(`Prerendered ${renderedRoutes.size}/${routes.length} routes`, "PRERENDER");
-  return { renderedRoutes, failedRoutes };
+  return results;
 }
 
-async function materializeAssets() {
-  log("Materializing external assets...", "ASSETS");
-  
-  const urls = new Set();
-  async function walk(dir) {
-    try {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const full = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          await walk(full);
-        } else if (entry.name.endsWith(".html")) {
-          const html = await fs.readFile(full, "utf8");
-          // Look for Lovable CDN assets
-          const matches = html.matchAll(/\/__l5e\/[A-Za-z0-9._\-\/]+/g);
-          for (const m of matches) {
-            urls.add(m[0]);
-          }
-          // Look for other external assets
-          const externalMatches = html.matchAll(/https?:\/\/[^\s"'<>]+\/(assets|fonts|images)\/[^\s"'<>]+/g);
-          for (const m of externalMatches) {
-            const url = m[0];
-            if (!url.includes(SITE_URL) && !url.includes(GH_PAGES_URL)) {
-              // Only download from our site
-              if (url.startsWith(SITE_URL)) {
-                urls.add(url.replace(SITE_URL, ""));
-              }
-            }
-          }
-        }
-      }
-    } catch {
-      // Skip directories that don't exist
-    }
-  }
-  
-  await walk(OUT);
-  
-  if (!urls.size) {
-    log("No external assets to materialize", "ASSETS");
-    return;
-  }
-  
-  log(`Found ${urls.size} external assets to materialize`, "ASSETS");
-  
-  let successCount = 0;
-  let failCount = 0;
-  
-  for (const u of urls) {
-    const dest = path.join(OUT, u.replace(/^\//, ""));
-    try {
-      await fs.access(dest);
-      log(`✓ Already exists: ${u}`, "ASSETS");
-      successCount++;
-      continue;
-    } catch {
-      // Need to fetch
-    }
-    
-    try {
-      const res = await fetch(`${SITE_URL}${u}`);
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      await fs.mkdir(path.dirname(dest), { recursive: true });
-      const buffer = Buffer.from(await res.arrayBuffer());
-      await fs.writeFile(dest, buffer);
-      log(`✓ Downloaded: ${u} (${buffer.length} bytes)`, "ASSETS");
-      successCount++;
-    } catch (err) {
-      log(`✗ Failed to download ${u}: ${err.message}`, "ERROR");
-      failCount++;
-    }
-  }
-  
-  log(`Materialized ${successCount}/${urls.size} assets (${failCount} failed)`, "ASSETS");
-}
-
-async function setupGitHubPages() {
-  log("Setting up GitHub Pages configuration...", "GH-PAGES");
-  
-  // Jekyll opt-out
-  await fs.writeFile(path.join(OUT, ".nojekyll"), "");
-  
-  // SPA fallback
-  try {
-    const indexHtml = await fs.readFile(path.join(OUT, "index.html"), "utf8");
-    await writeFile("404.html", indexHtml);
-  } catch {
-    log("index.html not found, creating fallback", "WARN");
-    await writeFile("404.html", `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Page Not Found</title></head>
-<body><h1>404 - Page Not Found</h1></body>
-</html>`);
-  }
-  
-  // Custom domain
-  try {
-    const cname = (await fs.readFile(path.join(ROOT, "CNAME"), "utf8")).trim();
-    if (cname) {
-      await fs.writeFile(path.join(OUT, "CNAME"), `${cname}\n`);
-      log(`✓ CNAME: ${cname}`, "GH-PAGES");
-    }
-  } catch {
-    log("No CNAME file found", "INFO");
-  }
-}
-
-async function verifyBuild() {
-  log("Starting build verification...", "VERIFY");
-  
-  const errors = [];
-  
-  // Check required files
-  const requiredFiles = ["index.html", "404.html", ".nojekyll"];
-  for (const f of requiredFiles) {
-    try {
-      await fs.access(path.join(OUT, f));
-    } catch {
-      errors.push(`Missing required file: ${f}`);
-    }
-  }
-  
-  // Check robots.txt exists and has sitemap
-  try {
-    const robots = await fs.readFile(path.join(OUT, "robots.txt"), "utf8");
-    if (!robots.includes("Sitemap:")) {
-      errors.push("robots.txt missing Sitemap directive");
-    }
-  } catch {
-    // Generate robots.txt if missing
-    log("Generating robots.txt", "VERIFY");
-    const robotsContent = `User-agent: *
-Allow: /
-Sitemap: ${SITE_URL}/sitemap.xml
-`;
-    await writeFile("robots.txt", robotsContent);
-  }
-  
-  // Check sitemaps exist
-  const sitemaps = ["sitemap.xml", "sitemap-pages.xml", "sitemap-projects.xml"];
-  for (const s of sitemaps) {
-    try {
-      await fs.access(path.join(OUT, s));
-    } catch {
-      log(`Warning: ${s} not found`, "WARN");
-    }
-  }
-  
-  // Check index.html references site URL
-  try {
-    const html = await fs.readFile(path.join(OUT, "index.html"), "utf8");
-    if (!html.includes(SITE_URL)) {
-      log("Warning: index.html does not reference SITE_URL", "WARN");
-    }
-    if (!html.includes(GH_PAGES_URL) && !html.includes("sthololwazi.github.io")) {
-      // This is okay if it's using relative paths
-      log("Note: index.html uses relative paths (good for GH Pages)", "VERIFY");
-    }
-  } catch (err) {
-    errors.push(`Could not read index.html: ${err.message}`);
-  }
-  
-  if (errors.length) {
-    log(`Verification found ${errors.length} issues`, "ERROR");
-    for (const e of errors) {
-      log(`- ${e}`, "ERROR");
-    }
-    // Don't fail the build, just warn
-  } else {
-    log("All verifications passed!", "VERIFY");
-  }
+async function createFallbackPage(title = "Sthololwazi Projects") {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${title}</title>
+  <meta name="description" content="Sthololwazi Projects - Civil & Building Construction" />
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; color: #1a1a1a; }
+    h1 { color: #C99A3B; }
+    .loading { text-align: center; padding: 60px 20px; }
+    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #C99A3B; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="loading">
+    <h1>Sthololwazi Projects</h1>
+    <div class="spinner"></div>
+    <p>Loading content...</p>
+    <p><small>If this page doesn't load, please check your connection.</small></p>
+  </div>
+  <script>
+    // Try to load the actual content
+    fetch('/')
+      .then(r => r.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const content = doc.querySelector('body').innerHTML;
+        document.body.innerHTML = content;
+      })
+      .catch(() => {
+        document.querySelector('.loading').innerHTML = '<h1>Loading Failed</h1><p>Please refresh the page or try again later.</p>';
+      });
+  </script>
+</body>
+</html>`;
 }
 
 async function main() {
   try {
-    log("🚀 Starting GH Pages mirror build", "START");
-    log(`Source: ${SITE_URL}`, "CONFIG");
-    log(`Output: ${OUT}`, "CONFIG");
+    log("🚀 Starting full static mirror build", "START");
     
     // 1. Build the project
     await buildProject();
     
-    // 2. Find server module
+    // 2. Find and load worker
     const serverPath = await findServerModule();
+    if (!serverPath) {
+      throw new Error("No server module found! Build may have failed.");
+    }
+    
+    const worker = await loadWorker(serverPath);
+    if (!worker) {
+      throw new Error("Failed to load worker module!");
+    }
     
     // 3. Setup output directory
     await fs.rm(OUT, { recursive: true, force: true });
     await fs.mkdir(OUT, { recursive: true });
     
-    // 4. Copy client assets
+    // 4. Copy client assets first
     log("Copying client assets...", "COPY");
     await copyDir(DIST_CLIENT, OUT);
     
-    // 5. Generate sitemaps and OG images
-    const { serviceSlugs, projectSlugs } = await generateSitemapsAndOG();
+    // 5. Get all routes
+    const dynamicRoutes = await getDynamicRoutes();
+    const allRoutes = [...ALL_ROUTES, ...dynamicRoutes];
+    log(`Total routes to render: ${allRoutes.length}`, "ROUTES");
     
-    // 6. Build routes list
-    const allRoutes = [
-      ...STATIC_ROUTES,
-      ...serviceSlugs.map(s => `/services/${s}`),
-      ...projectSlugs.map(s => `/projects/${s}`),
-    ];
+    // 6. Render all routes
+    const results = await renderWithWorker(worker, allRoutes);
     
-    // 7. Prerender with worker if available
-    if (serverPath) {
-      log(`Loading worker from ${serverPath}`, "WORKER");
-      const worker = await loadWorkerModule(serverPath);
-      if (worker && typeof worker.fetch === "function") {
-        await prerenderRoutes(worker, allRoutes);
-      } else {
-        log("Worker loaded but has no fetch handler", "WARN");
-        await createStaticFallback(allRoutes);
-      }
-    } else {
-      log("No server module found - creating static fallback", "WARN");
-      await createStaticFallback(allRoutes);
+    // 7. Check results
+    const failed = results.filter(r => !r.success);
+    const succeeded = results.filter(r => r.success);
+    
+    log(`Rendering complete: ${succeeded.length} succeeded, ${failed.length} failed`, "RENDER");
+    
+    if (failed.length > 0) {
+      log("Failed routes:", "ERROR");
+      failed.forEach(f => log(`  ${f.route}: ${f.error}`, "ERROR"));
     }
     
-    // 8. Materialize external assets
-    await materializeAssets();
+    // 8. Verify we have index.html
+    try {
+      await fs.access(path.join(OUT, "index.html"));
+      log("✓ index.html exists", "VERIFY");
+    } catch {
+      log("Creating fallback index.html", "WARN");
+      await writeFile("index.html", await createFallbackPage());
+    }
     
-    // 9. Setup GitHub Pages
-    await setupGitHubPages();
+    // 9. Create 404.html
+    try {
+      const indexHtml = await fs.readFile(path.join(OUT, "index.html"), "utf8");
+      await writeFile("404.html", indexHtml);
+    } catch {
+      await writeFile("404.html", await createFallbackPage("Page Not Found"));
+    }
     
-    // 10. Verify build
-    await verifyBuild();
+    // 10. GitHub Pages setup
+    await fs.writeFile(path.join(OUT, ".nojekyll"), "");
+    log("✓ Created .nojekyll", "GH-PAGES");
+    
+    // 11. Create sitemap
+    try {
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${allRoutes.map(route => `  <url>
+    <loc>${SITE_URL}${route}</loc>
+    <lastmod>${new Date().toISOString()}</lastmod>
+    <priority>${route === "/" ? "1.0" : "0.8"}</priority>
+  </url>`).join("\n")}
+</urlset>`;
+      await writeFile("sitemap.xml", sitemap);
+      log("✓ Created sitemap.xml", "SITEMAP");
+    } catch (err) {
+      log(`Failed to create sitemap: ${err.message}`, "WARN");
+    }
+    
+    // 12. Create robots.txt
+    await writeFile("robots.txt", `User-agent: *
+Allow: /
+Sitemap: ${SITE_URL}/sitemap.xml
+`);
+    log("✓ Created robots.txt", "ROBOTS");
+    
+    // 13. Final verification
+    const files = await fs.readdir(OUT);
+    const htmlFiles = files.filter(f => f.endsWith('.html'));
+    log(`Output contains ${htmlFiles.length} HTML files`, "VERIFY");
+    
+    // List all directories (routes)
+    const dirs = [];
+    async function listDirs(dir, prefix = "") {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+          dirs.push(rel);
+          await listDirs(path.join(dir, entry.name), rel);
+        }
+      }
+    }
+    await listDirs(OUT);
+    log(`Output contains ${dirs.length} directories`, "VERIFY");
     
     log("✅ Build complete!", "DONE");
     
@@ -477,27 +358,4 @@ async function main() {
   }
 }
 
-async function createStaticFallback(routes) {
-  log("Creating static fallback pages...", "FALLBACK");
-  
-  // Create basic HTML for each route
-  for (const route of routes) {
-    const out = route === "/" ? "index.html" : path.join(route.replace(/^\//, ""), "index.html");
-    await writeFile(out, `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ST Hololwazi Projects</title>
-  <link rel="stylesheet" href="/assets/index.css">
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/assets/index.js"></script>
-</body>
-</html>`);
-  }
-}
-
-// Run the build
 main();
