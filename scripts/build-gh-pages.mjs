@@ -169,6 +169,37 @@ async function main() {
   log("done.");
 }
 
+async function materializeLovableAssets() {
+  const LOVABLE_CDN = "https://lovable.dev";
+  const urls = new Set();
+  async function walk(dir) {
+    for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) await walk(full);
+      else if (entry.name.endsWith(".html")) {
+        const html = await fs.readFile(full, "utf8");
+        for (const m of html.matchAll(/\/__l5e\/[A-Za-z0-9._\-\/]+/g)) urls.add(m[0]);
+      }
+    }
+  }
+  await walk(OUT);
+  if (!urls.size) return;
+  for (const u of urls) {
+    const dest = path.join(OUT, u.replace(/^\//, ""));
+    try {
+      await fs.access(dest);
+      continue;
+    } catch {
+      /* fetch */
+    }
+    const res = await fetch(`${LOVABLE_CDN}${u}`);
+    if (!res.ok) throw new Error(`failed to fetch ${u}: ${res.status}`);
+    await fs.mkdir(path.dirname(dest), { recursive: true });
+    await fs.writeFile(dest, Buffer.from(await res.arrayBuffer()));
+    log(`materialized ${u} (${res.headers.get("content-length") ?? "?"} bytes)`);
+  }
+}
+
 async function firstExisting(candidates) {
   for (const c of candidates) {
     try {
