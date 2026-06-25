@@ -148,6 +148,10 @@ async function main() {
     log("no repo-root CNAME found; skipping custom-domain binding");
   }
 
+  // 6c. Materialize Lovable CDN assets (/__l5e/...) referenced by rendered
+  //     HTML so the mirror is fully self-contained on GH Pages.
+  await materializeLovableAssets();
+
   // 7. Verify every sitemap <loc> uses SITE_URL and resolves to a real
   //    file on the mirror (rendered index.html for HTML routes, the asset
   //    file for things like /api/og/projects/<slug>.svg).
