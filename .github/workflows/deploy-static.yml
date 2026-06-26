@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SITE_URL: "https://sthololwaziprojects.lovable.app"
-  NODE_ENV: production
+  SITE_URL: "https://sthololwaziprojects.co.za"
+  NODE_ENV: dev
 
 jobs:
   build-and-deploy:
@@ -33,12 +33,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
+          node-version: '24'
+
       - name: Install dependencies
-        run:  rm -f bun.lock
-              bun install 
-      
+        run: |
+            rm -f bun.lock
+              bun install
+        
       - name: Build static mirror
         run: bun run scripts/build-gh-pages.mjs
         env:
