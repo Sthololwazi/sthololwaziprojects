@@ -27,7 +27,7 @@ jobs:
       - run: rm -f bun.lock
       - run: bun install
       - run: bunx tsc --noEmit
-      - run: bun run lint
-      - run: bun run lint:fix
+      - run: bunx run lint
+      - run: bunx run lint:fix
       - name: preview
         run: bun run preview
