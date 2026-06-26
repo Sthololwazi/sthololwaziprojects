@@ -23,7 +23,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      - run: bun install --frozen-lockfile
+      - run: bun install
       - name: Build static mirror
         run: bun run build:gh-pages
       - name: GitHub Pages housekeeping
