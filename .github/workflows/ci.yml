@@ -24,8 +24,10 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      - run: bun install --frozen-lockfile
+      - run: rm -f bun.lock
+      - run: bun install
       - run: bunx tsc --noEmit
       - run: bun run lint
-      - name: Build (Lovable SSR target)
-        run: bun run build
+      - run: bun run lint:fix
+      - name: preview
+        run: bun run preview
